@@ -19,14 +19,14 @@ interface UserProfile {
 const UserProfileInteractive = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [userProfile, setUserProfile] = useState<UserProfile>({
-    firstName: 'Sarah',
-    lastName: 'Wilson',
-    email: 'sarah.wilson@supplychain.vision',
-    role: 'Operations Manager',
-    department: 'Supply Chain Operations',
-    phone: '+1 (555) 123-4567',
-    location: 'Chicago, IL',
-    timezone: 'America/Chicago',
+    firstName: 'สมชาย',
+    lastName: 'ใจดี',
+    email: 'somchai.jaidee@gtsalpha.com',
+    role: 'ผู้จัดการฝ่ายปฏิบัติการ',
+    department: 'ฝ่ายปฏิบัติการห่วงโซ่อุปทาน',
+    phone: '+66 (0) 2-123-4567',
+    location: 'กรุงเทพมหานคร, ประเทศไทย',
+    timezone: 'Asia/Bangkok',
     joinDate: '2023-03-15',
     lastLogin: '2025-11-19T05:15:00'
   });
@@ -90,7 +90,7 @@ const UserProfileInteractive = () => {
                 className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-2"
               >
                 <Icon name="PencilIcon" size={16} />
-                Edit Profile
+                แก้ไขโปรไฟล์
               </button>
             ) : (
               <div className="flex space-x-2">
@@ -99,14 +99,14 @@ const UserProfileInteractive = () => {
                   className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
                 >
                   <Icon name="CheckIcon" size={16} />
-                  Save
+                  บันทึก
                 </button>
                 <button
                   onClick={handleCancel}
                   className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors flex items-center gap-2"
                 >
                   <Icon name="XMarkIcon" size={16} />
-                  Cancel
+                  ยกเลิก
                 </button>
               </div>
             )}
@@ -119,7 +119,7 @@ const UserProfileInteractive = () => {
             <div className="flex items-center space-x-3">
               <Icon name="CalendarIcon" size={20} className="text-primary" />
               <div>
-                <p className="text-sm text-muted-foreground">Member Since</p>
+                <p className="text-sm text-muted-foreground">สมาชิกตั้งแต่</p>
                 <p className="font-medium text-foreground">{formatJoinDate(userProfile.joinDate)}</p>
               </div>
             </div>
@@ -129,7 +129,7 @@ const UserProfileInteractive = () => {
             <div className="flex items-center space-x-3">
               <Icon name="ClockIcon" size={20} className="text-green-600" />
               <div>
-                <p className="text-sm text-muted-foreground">Last Login</p>
+                <p className="text-sm text-muted-foreground">เข้าสู่ระบบล่าสุด</p>
                 <p className="font-medium text-foreground">{formatLastLogin(userProfile.lastLogin)}</p>
               </div>
             </div>
@@ -139,7 +139,7 @@ const UserProfileInteractive = () => {
             <div className="flex items-center space-x-3">
               <Icon name="GlobeAltIcon" size={20} className="text-blue-600" />
               <div>
-                <p className="text-sm text-muted-foreground">Timezone</p>
+                <p className="text-sm text-muted-foreground">เขตเวลา</p>
                 <p className="font-medium text-foreground">{userProfile.timezone}</p>
               </div>
             </div>
@@ -149,12 +149,12 @@ const UserProfileInteractive = () => {
 
       {/* Profile Information */}
       <div className="bg-card border border-border rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-foreground mb-6">Profile Information</h3>
+        <h3 className="text-lg font-semibold text-foreground mb-6">ข้อมูลโปรไฟล์</h3>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* First Name */}
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">First Name</label>
+            <label className="block text-sm font-medium text-foreground mb-2">ชื่อ</label>
             {isEditing ? (
               <input
                 type="text"
@@ -169,7 +169,7 @@ const UserProfileInteractive = () => {
 
           {/* Last Name */}
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Last Name</label>
+            <label className="block text-sm font-medium text-foreground mb-2">นามสกุล</label>
             {isEditing ? (
               <input
                 type="text"
@@ -184,7 +184,7 @@ const UserProfileInteractive = () => {
 
           {/* Email */}
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Email Address</label>
+            <label className="block text-sm font-medium text-foreground mb-2">อีเมล</label>
             {isEditing ? (
               <input
                 type="email"
@@ -199,7 +199,7 @@ const UserProfileInteractive = () => {
 
           {/* Phone */}
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Phone Number</label>
+            <label className="block text-sm font-medium text-foreground mb-2">เบอร์โทรศัพท์</label>
             {isEditing ? (
               <input
                 type="tel"
@@ -214,21 +214,21 @@ const UserProfileInteractive = () => {
 
           {/* Role */}
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Role</label>
+            <label className="block text-sm font-medium text-foreground mb-2">ตำแหน่ง</label>
             <p className="text-muted-foreground">{userProfile.role}</p>
-            <span className="text-xs text-muted-foreground">Contact administrator to change role</span>
+            <span className="text-xs text-muted-foreground">ติดต่อผู้ดูแลระบบเพื่อเปลี่ยนตำแหน่ง</span>
           </div>
 
           {/* Department */}
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Department</label>
+            <label className="block text-sm font-medium text-foreground mb-2">แผนก</label>
             <p className="text-muted-foreground">{userProfile.department}</p>
-            <span className="text-xs text-muted-foreground">Contact administrator to change department</span>
+            <span className="text-xs text-muted-foreground">ติดต่อผู้ดูแลระบบเพื่อเปลี่ยนแผนก</span>
           </div>
 
           {/* Location */}
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Location</label>
+            <label className="block text-sm font-medium text-foreground mb-2">สถานที่</label>
             {isEditing ? (
               <input
                 type="text"
@@ -243,20 +243,21 @@ const UserProfileInteractive = () => {
 
           {/* Timezone */}
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Timezone</label>
+            <label className="block text-sm font-medium text-foreground mb-2">เขตเวลา</label>
             {isEditing ? (
               <select
                 value={editForm.timezone}
                 onChange={(e) => setEditForm(prev => ({ ...prev, timezone: e.target.value }))}
                 className="w-full px-3 py-2 bg-background border border-border rounded-lg text-foreground focus:ring-2 focus:ring-primary focus:border-primary"
               >
-                <option value="America/New_York">Eastern Time</option>
-                <option value="America/Chicago">Central Time</option>
-                <option value="America/Denver">Mountain Time</option>
-                <option value="America/Los_Angeles">Pacific Time</option>
-                <option value="Europe/London">GMT</option>
-                <option value="Europe/Berlin">Central European Time</option>
-                <option value="Asia/Tokyo">Japan Standard Time</option>
+                <option value="America/New_York">เวลาตะวันออก (สหรัฐอเมริกา)</option>
+                <option value="America/Chicago">เวลากลาง (สหรัฐอเมริกา)</option>
+                <option value="America/Denver">เวลาภูเขา (สหรัฐอเมริกา)</option>
+                <option value="America/Los_Angeles">เวลาแปซิฟิก (สหรัฐอเมริกา)</option>
+                <option value="Europe/London">เวลา GMT</option>
+                <option value="Europe/Berlin">เวลายุโรปกลาง</option>
+                <option value="Asia/Tokyo">เวลาญี่ปุ่น</option>
+                <option value="Asia/Bangkok">เวลาไทย</option>
               </select>
             ) : (
               <p className="text-muted-foreground">{userProfile.timezone}</p>
@@ -267,19 +268,19 @@ const UserProfileInteractive = () => {
 
       {/* Security Settings */}
       <div className="bg-card border border-border rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-foreground mb-6">Security Settings</h3>
+        <h3 className="text-lg font-semibold text-foreground mb-6">การตั้งค่าความปลอดภัย</h3>
         
         <div className="space-y-4">
           <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
             <div className="flex items-center space-x-3">
               <Icon name="KeyIcon" size={20} className="text-yellow-600" />
               <div>
-                <p className="font-medium text-foreground">Password</p>
-                <p className="text-sm text-muted-foreground">Last updated 30 days ago</p>
+                <p className="font-medium text-foreground">รหัสผ่าน</p>
+                <p className="text-sm text-muted-foreground">อัปเดตล่าสุดเมื่อ 30 วันที่แล้ว</p>
               </div>
             </div>
             <button className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">
-              Change Password
+              เปลี่ยนรหัสผ่าน
             </button>
           </div>
           
@@ -287,12 +288,12 @@ const UserProfileInteractive = () => {
             <div className="flex items-center space-x-3">
               <Icon name="DevicePhoneMobileIcon" size={20} className="text-green-600" />
               <div>
-                <p className="font-medium text-foreground">Two-Factor Authentication</p>
-                <p className="text-sm text-muted-foreground">Enabled via SMS</p>
+                <p className="font-medium text-foreground">การยืนยันตัวตนแบบสองขั้นตอน</p>
+                <p className="text-sm text-muted-foreground">เปิดใช้งานผ่าน SMS</p>
               </div>
             </div>
             <button className="px-4 py-2 border border-border text-foreground rounded-lg hover:bg-muted transition-colors">
-              Manage
+              จัดการ
             </button>
           </div>
           
@@ -300,12 +301,12 @@ const UserProfileInteractive = () => {
             <div className="flex items-center space-x-3">
               <Icon name="ComputerDesktopIcon" size={20} className="text-blue-600" />
               <div>
-                <p className="font-medium text-foreground">Active Sessions</p>
-                <p className="text-sm text-muted-foreground">3 active sessions</p>
+                <p className="font-medium text-foreground">เซสชันที่ใช้งานอยู่</p>
+                <p className="text-sm text-muted-foreground">3 เซสชันที่ใช้งานอยู่</p>
               </div>
             </div>
             <button className="px-4 py-2 border border-border text-foreground rounded-lg hover:bg-muted transition-colors">
-              View Sessions
+              ดูเซสชัน
             </button>
           </div>
         </div>

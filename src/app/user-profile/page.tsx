@@ -17,7 +17,7 @@ export default function UserProfilePage() {
         
         <main className="lg:ml-60 pt-16">
           <div className="p-6">
-            <h1 className="text-3xl font-bold text-foreground mb-8">User Profile</h1>
+            <h1 className="text-3xl font-bold text-foreground mb-8">โปรไฟล์ผู้ใช้</h1>
             <UserProfileInteractive />
           </div>
         </main>
