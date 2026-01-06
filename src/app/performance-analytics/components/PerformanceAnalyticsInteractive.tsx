@@ -43,10 +43,112 @@ const PerformanceAnalyticsInteractive = () => {
   const [selectedDateMode, setSelectedDateMode] = useState('period-over-period');
   const [selectedMetric, setSelectedMetric] = useState('delivery-performance');
   const [showAlertConfig, setShowAlertConfig] = useState(false);
+  
+  // Add new state for custom date range
+  const [customDateRange, setCustomDateRange] = useState<{ start: string; end: string }>({
+    start: '',
+    end: ''
+  });
+  const [filteredChartData, setFilteredChartData] = useState(mockChartData);
+  const [filteredHistoricalData, setFilteredHistoricalData] = useState(mockHistoricalData);
 
   useEffect(() => {
     setIsHydrated(true);
   }, []);
+
+  // Filter data based on custom date range
+  useEffect(() => {
+    if (customDateRange.start && customDateRange.end) {
+      const startDate = new Date(customDateRange.start);
+      const endDate = new Date(customDateRange.end);
+
+      const filtered = mockChartData.filter(item => {
+        const itemDate = new Date(item.month);
+        return itemDate >= startDate && itemDate <= endDate;
+      });
+
+      setFilteredChartData(filtered.length > 0 ? filtered : mockChartData);
+    } else {
+      setFilteredChartData(mockChartData);
+    }
+  }, [customDateRange]);
+
+  const handleDateRangeChange = (range: { start: string; end: string }) => {
+    setCustomDateRange(range);
+  };
+
+  const handleExport = (format: 'csv' | 'excel' | 'pdf') => {
+    const dataToExport = filteredChartData;
+
+    if (format === 'csv') {
+      const headers = ['Month', 'On-Time Delivery', 'Avg Delay', 'Cost/Shipment', 'Vendor Score', 'Predicted Delivery'];
+      const csvContent = [
+        headers.join(','),
+        ...dataToExport.map(item => [
+          item.month,
+          item.onTimeDelivery,
+          item.averageDelay,
+          item.costPerShipment,
+          item.vendorScore,
+          item.predictedDelivery
+        ].join(','))
+      ].join('\n');
+
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `performance-analytics-${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    } else if (format === 'excel') {
+      // Excel export with insights and recommendations
+      const headers = ['Performance Analytics Report', '', '', '', '', ''];
+      const dateInfo = [`Report Generated: ${new Date().toLocaleDateString()}`, '', '', '', '', ''];
+      const emptyRow = ['', '', '', '', '', ''];
+      
+      const metricsHeaders = ['Month', 'On-Time Delivery', 'Avg Delay', 'Cost/Shipment', 'Vendor Score', 'Predicted'];
+      const metricsData = dataToExport.map(item => [
+        item.month,
+        `${item.onTimeDelivery}%`,
+        `${item.averageDelay} hours`,
+        `$${item.costPerShipment}`,
+        item.vendorScore,
+        `${item.predictedDelivery}%`
+      ]);
+
+      const insightsHeader = ['Key Insights', '', '', '', '', ''];
+      const insightsData = mockInsights.map(insight => [
+        insight.title,
+        insight.description,
+        insight.impact,
+        insight.action,
+        '',
+        ''
+      ]);
+
+      const csvContent = [
+        headers,
+        dateInfo,
+        emptyRow,
+        metricsHeaders,
+        ...metricsData,
+        emptyRow,
+        insightsHeader,
+        ...insightsData
+      ].map(row => row.join(',')).join('\n');
+
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `performance-analytics-detailed-${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    } else if (format === 'pdf') {
+      alert('PDF export will be available soon. For now, please use CSV or Excel export.');
+    }
+  };
 
   const mockKPIMetrics: KPIMetric[] = [
     {
@@ -225,6 +327,8 @@ const PerformanceAnalyticsInteractive = () => {
         onDateModeChange={setSelectedDateMode}
         onMetricChange={setSelectedMetric}
         onAlertConfigOpen={() => setShowAlertConfig(true)}
+        onDateRangeChange={handleDateRangeChange}
+        onExport={handleExport}
       />
       
       <KPIMetricsStrip metrics={mockKPIMetrics} />
@@ -232,7 +336,7 @@ const PerformanceAnalyticsInteractive = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div>
           <DeliveryPerformanceChart 
-            data={mockChartData}
+            data={filteredChartData}
             selectedMetric={selectedMetric}
           />
         </div>
@@ -318,7 +422,7 @@ const PerformanceAnalyticsInteractive = () => {
         </div>
       </div>
       
-      <HistoricalTrendAnalysis data={mockHistoricalData} />
+      <HistoricalTrendAnalysis data={filteredHistoricalData} />
       
       {showAlertConfig && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">

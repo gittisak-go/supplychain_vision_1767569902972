@@ -284,7 +284,7 @@ CREATE TRIGGER trigger_update_team_permissions_updated_at
     FOR EACH ROW
     EXECUTE FUNCTION public.update_team_updated_at();
 
--- 8. Mock data for testing
+-- 8. Mock data for testing (only if users exist)
 DO $$
 DECLARE
     existing_user1_id UUID;
@@ -293,63 +293,57 @@ DECLARE
     member1_id UUID;
     member2_id UUID;
 BEGIN
-    -- Get existing users from user_profiles
+    -- Get existing users from user_profiles (these should already exist from auth setup)
     SELECT id INTO existing_user1_id FROM public.user_profiles WHERE email = 'phongwut.w@gmail.com' LIMIT 1;
     SELECT id INTO existing_user2_id FROM public.user_profiles WHERE email = 'gittisakwannakeeree@gmail.com' LIMIT 1;
     
-    -- If users don't exist, create them (this will only happen in fresh database)
-    IF existing_user1_id IS NULL THEN
-        -- Note: In production, these users should be created via Supabase Auth signup
-        INSERT INTO public.user_profiles (id, email, full_name, phone)
-        VALUES (gen_random_uuid(), 'phongwut.w@gmail.com', 'Phongwut Wechabut', NULL)
-        RETURNING id INTO existing_user1_id;
+    -- Only create mock data if both users exist
+    IF existing_user1_id IS NOT NULL AND existing_user2_id IS NOT NULL THEN
+        -- Create team
+        INSERT INTO public.teams (id, name, description, created_by)
+        VALUES (team_id, 'Supply Chain Operations', 'Core operations team for supply chain management', existing_user2_id);
+        
+        -- Add team members
+        INSERT INTO public.team_members (team_id, user_id, role, added_by)
+        VALUES 
+            (team_id, existing_user2_id, 'operations_director'::public.team_member_role, existing_user2_id)
+        RETURNING id INTO member1_id;
+        
+        INSERT INTO public.team_members (team_id, user_id, role, added_by)
+        VALUES 
+            (team_id, existing_user1_id, 'operations_manager'::public.team_member_role, existing_user2_id)
+        RETURNING id INTO member2_id;
+        
+        -- Add team activities
+        INSERT INTO public.team_activities (team_id, user_id, activity_type, description, metadata)
+        VALUES 
+            (team_id, existing_user2_id, 'team_created'::public.team_activity_type, 'Created Supply Chain Operations team', '{"action": "team_creation"}'::jsonb),
+            (team_id, existing_user2_id, 'member_added'::public.team_activity_type, 'Added Phongwut Wechabut as Operations Manager', '{"member_email": "phongwut.w@gmail.com", "role": "operations_manager"}'::jsonb);
+        
+        -- Add workspace configurations
+        INSERT INTO public.workspace_configurations (team_id, config_key, config_value, updated_by)
+        VALUES 
+            (team_id, 'dashboard_layout', '{"columns": 12, "widgets": ["kpi", "alerts", "map", "charts"]}'::jsonb, existing_user2_id),
+            (team_id, 'notification_preferences', '{"email": true, "push": true, "frequency": "realtime"}'::jsonb, existing_user2_id),
+            (team_id, 'theme', '{"mode": "dark", "primaryColor": "#3b82f6"}'::jsonb, existing_user2_id);
+        
+        -- Add team permissions for directors (full access)
+        INSERT INTO public.team_permissions (team_id, member_id, resource, can_view, can_edit, can_delete, can_share)
+        VALUES 
+            (team_id, member1_id, 'dashboard', true, true, true, true),
+            (team_id, member1_id, 'analytics', true, true, true, true),
+            (team_id, member1_id, 'team_settings', true, true, true, true);
+        
+        -- Add team permissions for managers (edit access)
+        INSERT INTO public.team_permissions (team_id, member_id, resource, can_view, can_edit, can_delete, can_share)
+        VALUES 
+            (team_id, member2_id, 'dashboard', true, true, false, true),
+            (team_id, member2_id, 'analytics', true, true, false, true),
+            (team_id, member2_id, 'team_settings', true, false, false, false);
+            
+        RAISE NOTICE 'Team collaboration mock data created successfully';
+    ELSE
+        RAISE NOTICE 'Users not found. Please create users via authentication first before running team collaboration migration.';
+        RAISE NOTICE 'Required users: phongwut.w@gmail.com, gittisakwannakeeree@gmail.com';
     END IF;
-    
-    IF existing_user2_id IS NULL THEN
-        INSERT INTO public.user_profiles (id, email, full_name, phone)
-        VALUES (gen_random_uuid(), 'gittisakwannakeeree@gmail.com', 'Gittisak Wannakeeree', NULL)
-        RETURNING id INTO existing_user2_id;
-    END IF;
-    
-    -- Create team
-    INSERT INTO public.teams (id, name, description, created_by)
-    VALUES (team_id, 'Supply Chain Operations', 'Core operations team for supply chain management', existing_user2_id);
-    
-    -- Add team members
-    INSERT INTO public.team_members (team_id, user_id, role, added_by)
-    VALUES 
-        (team_id, existing_user2_id, 'operations_director'::public.team_member_role, existing_user2_id)
-    RETURNING id INTO member1_id;
-    
-    INSERT INTO public.team_members (team_id, user_id, role, added_by)
-    VALUES 
-        (team_id, existing_user1_id, 'operations_manager'::public.team_member_role, existing_user2_id)
-    RETURNING id INTO member2_id;
-    
-    -- Add team activities
-    INSERT INTO public.team_activities (team_id, user_id, activity_type, description, metadata)
-    VALUES 
-        (team_id, existing_user2_id, 'team_created'::public.team_activity_type, 'Created Supply Chain Operations team', '{"action": "team_creation"}'::jsonb),
-        (team_id, existing_user2_id, 'member_added'::public.team_activity_type, 'Added Phongwut Wechabut as Operations Manager', '{"member_email": "phongwut.w@gmail.com", "role": "operations_manager"}'::jsonb);
-    
-    -- Add workspace configurations
-    INSERT INTO public.workspace_configurations (team_id, config_key, config_value, updated_by)
-    VALUES 
-        (team_id, 'dashboard_layout', '{"columns": 12, "widgets": ["kpi", "alerts", "map", "charts"]}'::jsonb, existing_user2_id),
-        (team_id, 'notification_preferences', '{"email": true, "push": true, "frequency": "realtime"}'::jsonb, existing_user2_id),
-        (team_id, 'theme', '{"mode": "dark", "primaryColor": "#3b82f6"}'::jsonb, existing_user2_id);
-    
-    -- Add team permissions for directors (full access)
-    INSERT INTO public.team_permissions (team_id, member_id, resource, can_view, can_edit, can_delete, can_share)
-    VALUES 
-        (team_id, member1_id, 'dashboard', true, true, true, true),
-        (team_id, member1_id, 'analytics', true, true, true, true),
-        (team_id, member1_id, 'team_settings', true, true, true, true);
-    
-    -- Add team permissions for managers (edit access)
-    INSERT INTO public.team_permissions (team_id, member_id, resource, can_view, can_edit, can_delete, can_share)
-    VALUES 
-        (team_id, member2_id, 'dashboard', true, true, false, true),
-        (team_id, member2_id, 'analytics', true, true, false, true),
-        (team_id, member2_id, 'team_settings', true, false, false, false);
 END $$;

@@ -6,8 +6,8 @@ import Header from '@/components/common/Header';
 import SupplyChainOverviewInteractive from './components/SupplyChainOverviewInteractive';
 
 export const metadata: Metadata = {
-  title: 'ภาพรวมโซ่อุปทาน - GtsAlpha :Ghost Tracker',
-  description: 'แดชบอร์ดการมองเห็นโซ่อุปทานแบบครบวงจรพร้อมการติดตามการจัดส่งแบบเรียลไทม์ การปรับเส้นทางให้เหมาะสม แลวการตรวจสอบประสิทธิภาพการขนส่ง',
+  title: 'ภาพรวมโซ่อุปทาน - ระบบติดตามโลจิสติกส์ประเทศไทย',
+  description: 'แดshboard การมองเห็นโซ่อุปทานแบบครบวงจรสำหรับประเทศไทย พร้อมการติดตามการจัดส่งแบบเรียลไทม์ การปรับเส้นทางให้เหมาะสม และการตรวจสอบประสิทธิภาพการขนส่ง',
 };
 
 export default function SupplyChainOverviewPage() {
@@ -24,10 +24,10 @@ export default function SupplyChainOverviewPage() {
             <div className="max-w-7xl mx-auto">
               <div className="mb-6">
                 <h1 className="text-2xl font-bold text-foreground mb-2">
-                  Supply Chain Overview
+                  ภาพรวมโซ่อุปทาน - ประเทศไทย
                 </h1>
                 <p className="text-muted-foreground">
-                  Real-time visibility into global logistics operations and performance metrics
+                  ติดตามการขนส่งและโลจิสติกส์ทั่วประเทศไทยแบบเรียลไทม์
                 </p>
               </div>
               

@@ -56,119 +56,147 @@ const SupplyChainOverviewInteractive = () => {
     routePerformance: { value: 87.6, change: 5.2, changeType: 'increase' }
   };
 
-  // Mock Shipment Pins
+  // Mock Shipment Pins - Thailand Locations
   const shipmentPins: ShipmentPin[] = [
     {
       id: '1',
-      lat: 40.7128,
-      lng: -74.0060,
+      lat: 13.7563,
+      lng: 100.5018,
       status: 'on-time',
-      shipmentId: 'SH001',
-      origin: 'New York, NY',
-      destination: 'Los Angeles, CA',
-      eta: 'Nov 22, 2024'
+      shipmentId: 'TH001',
+      origin: 'กรุงเทพมหานคร',
+      destination: 'เชียงใหม่',
+      eta: '22 ม.ค. 2567'
     },
     {
       id: '2',
-      lat: 51.5074,
-      lng: -0.1278,
+      lat: 7.8804,
+      lng: 98.3923,
       status: 'delayed',
-      shipmentId: 'SH002',
-      origin: 'London, UK',
-      destination: 'Berlin, Germany',
-      eta: 'Nov 21, 2024'
+      shipmentId: 'TH002',
+      origin: 'ภูเก็ต',
+      destination: 'กระบี่',
+      eta: '21 ม.ค. 2567'
     },
     {
       id: '3',
-      lat: 35.6762,
-      lng: 139.6503,
+      lat: 12.9236,
+      lng: 100.8825,
       status: 'critical',
-      shipmentId: 'SH003',
-      origin: 'Tokyo, Japan',
-      destination: 'Shanghai, China',
-      eta: 'Nov 20, 2024'
+      shipmentId: 'TH003',
+      origin: 'พัทยา',
+      destination: 'ระยอง',
+      eta: '20 ม.ค. 2567'
     },
     {
       id: '4',
-      lat: -33.8688,
-      lng: 151.2093,
+      lat: 18.7883,
+      lng: 98.9853,
       status: 'on-time',
-      shipmentId: 'SH004',
-      origin: 'Sydney, Australia',
-      destination: 'Melbourne, Australia',
-      eta: 'Nov 19, 2024'
+      shipmentId: 'TH004',
+      origin: 'เชียงใหม่',
+      destination: 'เชียงราย',
+      eta: '19 ม.ค. 2567'
     },
     {
       id: '5',
-      lat: 55.7558,
-      lng: 37.6176,
+      lat: 15.1168,
+      lng: 104.9065,
       status: 'delayed',
-      shipmentId: 'SH005',
-      origin: 'Moscow, Russia',
-      destination: 'St. Petersburg, Russia',
-      eta: 'Nov 23, 2024'
+      shipmentId: 'TH005',
+      origin: 'อุบลราชธานี',
+      destination: 'ขอนแก่น',
+      eta: '23 ม.ค. 2567'
+    },
+    {
+      id: '6',
+      lat: 8.5604,
+      lng: 99.9084,
+      status: 'on-time',
+      shipmentId: 'TH006',
+      origin: 'สุราษฎร์ธานี',
+      destination: 'นครศรีธรรมราช',
+      eta: '22 ม.ค. 2567'
+    },
+    {
+      id: '7',
+      lat: 14.3532,
+      lng: 100.5698,
+      status: 'on-time',
+      shipmentId: 'TH007',
+      origin: 'อยุธยา',
+      destination: 'ลพบุรี',
+      eta: '21 ม.ค. 2567'
     }
   ];
 
-  // Mock Alerts
+  // Mock Alerts - Thailand Specific
   const alerts: Alert[] = [
     {
       id: '1',
       type: 'critical',
-      title: 'Port Congestion Alert',
-      message: 'Severe delays at Port of Los Angeles affecting 15 shipments',
-      timestamp: '2 min ago',
-      shipmentId: 'SH001',
-      location: 'Los Angeles, CA'
+      title: 'การจราจรติดขัดบนทางด่วน',
+      message: 'การจราจรติดขัดหนักบนทางด่วนเอกมัย-รามอินทรา ส่งผลต่อ 8 เที่ยวจัดส่ง',
+      timestamp: '2 นาทีที่แล้ว',
+      shipmentId: 'TH001',
+      location: 'กรุงเทพมหานคร'
     },
     {
       id: '2',
       type: 'warning',
-      title: 'Weather Disruption',
-      message: 'Storm system may impact deliveries in Northeast region',
-      timestamp: '5 min ago',
-      location: 'Northeast US'
+      title: 'สภาพอากาศไม่เอื้ออำนวย',
+      message: 'พายุฝนกำลังเข้าสู่ภาคใต้ อาจส่งผลต่อการจัดส่งในพื้นที่',
+      timestamp: '5 นาทีที่แล้ว',
+      location: 'ภาคใต้'
     },
     {
       id: '3',
       type: 'info',
-      title: 'Route Optimization',
-      message: 'New route available for Chicago-Detroit corridor saving 2 hours',
-      timestamp: '12 min ago',
-      location: 'Midwest US'
+      title: 'เส้นทางใหม่ที่มีประสิทธิภาพ',
+      message: 'เส้นทางใหม่กรุงเทพฯ-เชียงใหม่ ประหยัดเวลา 45 นาที',
+      timestamp: '12 นาทีที่แล้ว',
+      location: 'กรุงเทพฯ-เชียงใหม่'
     },
     {
       id: '4',
       type: 'critical',
-      title: 'Vehicle Breakdown',
-      message: 'Truck breakdown on I-95, backup vehicle dispatched',
-      timestamp: '18 min ago',
-      shipmentId: 'SH007',
-      location: 'I-95 Corridor'
+      title: 'รถเสียกลางทาง',
+      message: 'รถบรรทุกเสียบนถนนพหลโยธิน ส่งรถสำรองแล้ว',
+      timestamp: '18 นาทีที่แล้ว',
+      shipmentId: 'TH004',
+      location: 'ถนนพหลโยธิน'
     },
     {
       id: '5',
       type: 'warning',
-      title: 'Customs Delay',
-      message: 'Extended processing times at JFK International',
-      timestamp: '25 min ago',
-      location: 'JFK Airport, NY'
+      title: 'การตรวจสอบที่ด่านศุลกากร',
+      message: 'ระยะเวลาการตรวจสอบที่ท่าเรือแหลมฉบัง นานกว่าปกติ',
+      timestamp: '25 นาทีที่แล้ว',
+      location: 'ท่าเรือแหลมฉบัง ชลบุรี'
+    },
+    {
+      id: '6',
+      type: 'info',
+      title: 'การจัดส่งสำเร็จ',
+      message: 'การจัดส่ง 15 รายการถึงจุดหมายเรียบร้อยแล้ว',
+      timestamp: '30 นาทีที่แล้ว',
+      location: 'หลายพื้นที่'
     }
   ];
 
-  // Mock Chart Data
+  // Mock Chart Data - Keep existing structure
   const chartData: ChartData[] = [
-    { month: 'Jan', current: 2400, previous: 2200 },
-    { month: 'Feb', current: 2600, previous: 2100 },
-    { month: 'Mar', current: 2800, previous: 2300 },
-    { month: 'Apr', current: 2700, previous: 2400 },
-    { month: 'May', current: 3100, previous: 2600 },
-    { month: 'Jun', current: 2900, previous: 2500 },
-    { month: 'Jul', current: 3200, previous: 2800 },
-    { month: 'Aug', current: 3000, previous: 2700 },
-    { month: 'Sep', current: 3300, previous: 2900 },
-    { month: 'Oct', current: 3100, previous: 2800 },
-    { month: 'Nov', current: 2847, previous: 2650 }
+    { month: 'ม.ค.', current: 2400, previous: 2200 },
+    { month: 'ก.พ.', current: 2600, previous: 2100 },
+    { month: 'มี.ค.', current: 2800, previous: 2300 },
+    { month: 'เม.ย.', current: 2700, previous: 2400 },
+    { month: 'พ.ค.', current: 3100, previous: 2600 },
+    { month: 'มิ.ย.', current: 2900, previous: 2500 },
+    { month: 'ก.ค.', current: 3200, previous: 2800 },
+    { month: 'ส.ค.', current: 3000, previous: 2700 },
+    { month: 'ก.ย.', current: 3300, previous: 2900 },
+    { month: 'ต.ค.', current: 3100, previous: 2800 },
+    { month: 'พ.ย.', current: 2847, previous: 2650 }
   ];
 
   const handlePinClick = (shipment: ShipmentPin) => {
