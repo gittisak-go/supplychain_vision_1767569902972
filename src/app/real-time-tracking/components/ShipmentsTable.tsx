@@ -1,20 +1,10 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { RealtimePostgresChangesPayload } from '@supabase/supabase-js';
 import Icon from '@/components/ui/AppIcon';
-
-interface Shipment {
-  id: string;
-  origin: string;
-  destination: string;
-  items: number;
-  eta: string;
-  status: 'in-transit' | 'delayed' | 'delivered' | 'pending';
-  priority: 'critical' | 'high' | 'medium' | 'low';
-  carrier: string;
-  progress: number;
-  lastUpdate: string;
-}
+import { supplyChainService } from '@/services/supplyChainService';
+import { Shipment, ShipmentStatus } from '@/types/supply-chain.types';
 
 interface ShipmentsTableProps {
   searchTerm: string;
@@ -26,79 +16,60 @@ interface ShipmentsTableProps {
 }
 
 const ShipmentsTable = ({ searchTerm, filters }: ShipmentsTableProps) => {
-  const [sortField, setSortField] = useState<keyof Shipment>('eta');
+  const [sortField, setSortField] = useState<keyof Shipment>('estimatedArrival');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [selectedShipments, setSelectedShipments] = useState<string[]>([]);
+  const [shipments, setShipments] = useState<Shipment[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  const mockShipments: Shipment[] = [
-    {
-      id: 'SH-2024-001',
-      origin: 'Los Angeles, CA',
-      destination: 'New York, NY',
-      items: 245,
-      eta: '2024-11-20 14:30',
-      status: 'in-transit',
-      priority: 'high',
-      carrier: 'FedEx Ground',
-      progress: 75,
-      lastUpdate: '2024-11-19 04:45'
-    },
-    {
-      id: 'SH-2024-002',
-      origin: 'Seattle, WA',
-      destination: 'Miami, FL',
-      items: 156,
-      eta: '2024-11-21 09:15',
-      status: 'delayed',
-      priority: 'critical',
-      carrier: 'UPS Express',
-      progress: 45,
-      lastUpdate: '2024-11-19 04:30'
-    },
-    {
-      id: 'SH-2024-003',
-      origin: 'Chicago, IL',
-      destination: 'Denver, CO',
-      items: 89,
-      eta: '2024-11-19 16:00',
-      status: 'delivered',
-      priority: 'medium',
-      carrier: 'DHL Express',
-      progress: 100,
-      lastUpdate: '2024-11-19 15:45'
-    },
-    {
-      id: 'SH-2024-004',
-      origin: 'Houston, TX',
-      destination: 'Phoenix, AZ',
-      items: 312,
-      eta: '2024-11-22 11:45',
-      status: 'pending',
-      priority: 'low',
-      carrier: 'USPS Priority',
-      progress: 15,
-      lastUpdate: '2024-11-19 04:00'
-    },
-    {
-      id: 'SH-2024-005',
-      origin: 'Boston, MA',
-      destination: 'Atlanta, GA',
-      items: 198,
-      eta: '2024-11-20 18:20',
-      status: 'in-transit',
-      priority: 'high',
-      carrier: 'FedEx Express',
-      progress: 60,
-      lastUpdate: '2024-11-19 04:40'
+  // Load shipments from Supabase
+  useEffect(() => {
+    loadShipments();
+  }, []);
+
+  // Real-time subscription
+  useEffect(() => {
+    const unsubscribe = supplyChainService.subscribeToShipments((payload: RealtimePostgresChangesPayload<any>) => {
+      if (payload.eventType === 'INSERT') {
+        setShipments(current => [payload.new as Shipment, ...current]);
+      } else if (payload.eventType === 'UPDATE') {
+        setShipments(current =>
+          current?.map(shipment =>
+            shipment?.id === payload?.new?.id ? payload.new as Shipment : shipment
+          ) || []
+        );
+      } else if (payload.eventType === 'DELETE') {
+        setShipments(current =>
+          current?.filter(shipment => shipment?.id !== payload?.old?.id) || []
+        );
+      }
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+
+  const loadShipments = async (): Promise<void> => {
+    try {
+      setLoading(true);
+      const { data, error } = await supplyChainService.getAllShipments();
+      if (error) throw error;
+      setShipments(data || []);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'เกิดข้อผิดพลาดในการโหลดข้อมูล');
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
-  const getStatusBadge = (status: Shipment['status']) => {
+  const getStatusBadge = (status: ShipmentStatus) => {
     const statusConfig = {
-      'in-transit': { color: 'bg-blue-100 text-blue-800', label: 'In Transit' },
-      'delayed': { color: 'bg-red-100 text-red-800', label: 'Delayed' },
-      'delivered': { color: 'bg-green-100 text-green-800', label: 'Delivered' },
-      'pending': { color: 'bg-yellow-100 text-yellow-800', label: 'Pending' }
+      'in-transit': { color: 'bg-blue-100 text-blue-800', label: 'กำลังขนส่ง' },
+      'delayed': { color: 'bg-red-100 text-red-800', label: 'ล่าช้า' },
+      'delivered': { color: 'bg-green-100 text-green-800', label: 'จัดส่งแล้ว' },
+      'pending': { color: 'bg-yellow-100 text-yellow-800', label: 'รอดำเนินการ' }
     };
 
     const config = statusConfig[status];
@@ -109,15 +80,15 @@ const ShipmentsTable = ({ searchTerm, filters }: ShipmentsTableProps) => {
     );
   };
 
-  const getPriorityBadge = (priority: Shipment['priority']) => {
-    const priorityConfig = {
-      'critical': { color: 'bg-red-500', label: 'Critical' },
-      'high': { color: 'bg-orange-500', label: 'High' },
-      'medium': { color: 'bg-yellow-500', label: 'Medium' },
-      'low': { color: 'bg-gray-500', label: 'Low' }
+  const getPriorityBadge = (priority: string) => {
+    const priorityConfig: Record<string, { color: string; label: string }> = {
+      'critical': { color: 'bg-red-500', label: 'วิกฤต' },
+      'high': { color: 'bg-orange-500', label: 'สูง' },
+      'medium': { color: 'bg-yellow-500', label: 'ปานกลาง' },
+      'low': { color: 'bg-gray-500', label: 'ต่ำ' }
     };
 
-    const config = priorityConfig[priority];
+    const config = priorityConfig[priority] || priorityConfig['medium'];
     return (
       <div className="flex items-center space-x-2">
         <div className={`w-2 h-2 rounded-full ${config.color}`}></div>
@@ -127,21 +98,21 @@ const ShipmentsTable = ({ searchTerm, filters }: ShipmentsTableProps) => {
   };
 
   const filteredAndSortedShipments = useMemo(() => {
-    let filtered = mockShipments.filter(shipment => {
+    let filtered = shipments?.filter(shipment => {
       const matchesSearch = searchTerm === '' || 
-        shipment.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        shipment.origin.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        shipment.destination.toLowerCase().includes(searchTerm.toLowerCase());
+        shipment?.shipmentId?.toLowerCase()?.includes(searchTerm.toLowerCase()) ||
+        shipment?.originPort?.city?.toLowerCase()?.includes(searchTerm.toLowerCase()) ||
+        shipment?.destinationPort?.city?.toLowerCase()?.includes(searchTerm.toLowerCase());
 
-      const matchesStatus = filters.status === 'all' || shipment.status === filters.status;
-      const matchesPriority = filters.priority === 'all' || shipment.priority === filters.priority;
+      const matchesStatus = filters.status === 'all' || shipment?.shipmentStatus === filters.status;
+      const matchesPriority = filters.priority === 'all' || shipment?.shipmentPriority === filters.priority;
 
       return matchesSearch && matchesStatus && matchesPriority;
-    });
+    }) || [];
 
     filtered.sort((a, b) => {
-      const aValue = a[sortField];
-      const bValue = b[sortField];
+      const aValue = a?.[sortField];
+      const bValue = b?.[sortField];
       
       if (sortDirection === 'asc') {
         return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
@@ -151,7 +122,7 @@ const ShipmentsTable = ({ searchTerm, filters }: ShipmentsTableProps) => {
     });
 
     return filtered;
-  }, [searchTerm, filters, sortField, sortDirection]);
+  }, [shipments, searchTerm, filters, sortField, sortDirection]);
 
   const handleSort = (field: keyof Shipment) => {
     if (sortField === field) {
@@ -178,6 +149,35 @@ const ShipmentsTable = ({ searchTerm, filters }: ShipmentsTableProps) => {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="bg-card rounded-lg border border-border p-12">
+        <div className="flex items-center justify-center">
+          <Icon name="ArrowPathIcon" size={32} className="animate-spin text-primary" />
+          <span className="ml-3 text-muted-foreground">กำลังโหลดข้อมูล...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-card rounded-lg border border-border p-12">
+        <div className="text-center">
+          <Icon name="ExclamationTriangleIcon" size={48} className="mx-auto text-red-500 mb-4" />
+          <h3 className="text-lg font-medium text-foreground mb-2">เกิดข้อผิดพลาด</h3>
+          <p className="text-muted-foreground mb-4">{error}</p>
+          <button 
+            onClick={loadShipments}
+            className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90"
+          >
+            ลองใหม่อีกครั้ง
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-card rounded-lg border border-border overflow-hidden">
       {/* Table Header Actions */}
@@ -185,14 +185,14 @@ const ShipmentsTable = ({ searchTerm, filters }: ShipmentsTableProps) => {
         <div className="px-6 py-3 bg-primary/5 border-b border-border">
           <div className="flex items-center justify-between">
             <span className="text-sm text-foreground">
-              {selectedShipments.length} shipment(s) selected
+              เลือก {selectedShipments.length} รายการ
             </span>
             <div className="flex items-center space-x-2">
               <button className="px-3 py-1.5 text-xs bg-primary text-primary-foreground rounded hover:bg-primary/90 transition-smooth">
-                Update Status
+                อัพเดทสถานะ
               </button>
               <button className="px-3 py-1.5 text-xs bg-secondary text-secondary-foreground rounded hover:bg-secondary/90 transition-smooth">
-                Export Selected
+                ส่งออกข้อมูล
               </button>
             </div>
           </div>
@@ -214,95 +214,77 @@ const ShipmentsTable = ({ searchTerm, filters }: ShipmentsTableProps) => {
               </th>
               <th 
                 className="px-6 py-4 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider cursor-pointer hover:text-foreground transition-smooth"
-                onClick={() => handleSort('id')}
+                onClick={() => handleSort('shipmentId')}
               >
                 <div className="flex items-center space-x-1">
-                  <span>Shipment ID</span>
-                  <Icon name="ChevronUpDownIcon" size={14} />
-                </div>
-              </th>
-              <th 
-                className="px-6 py-4 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider cursor-pointer hover:text-foreground transition-smooth"
-                onClick={() => handleSort('origin')}
-              >
-                <div className="flex items-center space-x-1">
-                  <span>Origin</span>
-                  <Icon name="ChevronUpDownIcon" size={14} />
-                </div>
-              </th>
-              <th 
-                className="px-6 py-4 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider cursor-pointer hover:text-foreground transition-smooth"
-                onClick={() => handleSort('destination')}
-              >
-                <div className="flex items-center space-x-1">
-                  <span>Destination</span>
-                  <Icon name="ChevronUpDownIcon" size={14} />
-                </div>
-              </th>
-              <th 
-                className="px-6 py-4 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider cursor-pointer hover:text-foreground transition-smooth"
-                onClick={() => handleSort('items')}
-              >
-                <div className="flex items-center space-x-1">
-                  <span>Items</span>
-                  <Icon name="ChevronUpDownIcon" size={14} />
-                </div>
-              </th>
-              <th 
-                className="px-6 py-4 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider cursor-pointer hover:text-foreground transition-smooth"
-                onClick={() => handleSort('eta')}
-              >
-                <div className="flex items-center space-x-1">
-                  <span>ETA</span>
+                  <span>รหัสการจัดส่ง</span>
                   <Icon name="ChevronUpDownIcon" size={14} />
                 </div>
               </th>
               <th className="px-6 py-4 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Status
+                ต้นทาง
               </th>
               <th className="px-6 py-4 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Priority
+                ปลายทาง
               </th>
               <th className="px-6 py-4 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Progress
+                จำนวนสินค้า
+              </th>
+              <th 
+                className="px-6 py-4 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider cursor-pointer hover:text-foreground transition-smooth"
+                onClick={() => handleSort('estimatedArrival')}
+              >
+                <div className="flex items-center space-x-1">
+                  <span>เวลาที่คาดว่าจะถึง</span>
+                  <Icon name="ChevronUpDownIcon" size={14} />
+                </div>
+              </th>
+              <th className="px-6 py-4 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                สถานะ
+              </th>
+              <th className="px-6 py-4 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                ความสำคัญ
+              </th>
+              <th className="px-6 py-4 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                ความคืบหน้า
               </th>
               <th className="px-6 py-4 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Actions
+                การดำเนินการ
               </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
-            {filteredAndSortedShipments.map((shipment) => (
+            {filteredAndSortedShipments?.map((shipment) => (
               <tr 
-                key={shipment.id} 
+                key={shipment?.id} 
                 className={`hover:bg-muted/50 transition-smooth ${
-                  selectedShipments.includes(shipment.id) ? 'bg-primary/5' : ''
+                  selectedShipments.includes(shipment?.id) ? 'bg-primary/5' : ''
                 }`}
               >
                 <td className="px-6 py-4">
                   <input
                     type="checkbox"
-                    checked={selectedShipments.includes(shipment.id)}
-                    onChange={() => handleSelectShipment(shipment.id)}
+                    checked={selectedShipments.includes(shipment?.id)}
+                    onChange={() => handleSelectShipment(shipment?.id)}
                     className="rounded border-border focus:ring-ring"
                   />
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-medium text-foreground">{shipment.id}</div>
-                  <div className="text-xs text-muted-foreground">{shipment.carrier}</div>
+                  <div className="text-sm font-medium text-foreground">{shipment?.shipmentId}</div>
+                  <div className="text-xs text-muted-foreground">{shipment?.carrier}</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-foreground">{shipment.origin}</div>
+                  <div className="text-sm text-foreground">{shipment?.originPort?.city || 'N/A'}</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-foreground">{shipment.destination}</div>
+                  <div className="text-sm text-foreground">{shipment?.destinationPort?.city || 'N/A'}</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-foreground">{shipment.items.toLocaleString()}</div>
+                  <div className="text-sm text-foreground">{shipment?.itemsCount?.toLocaleString()}</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm text-foreground">
-                    {new Date(shipment.eta).toLocaleDateString('en-US', {
+                    {new Date(shipment?.estimatedArrival).toLocaleDateString('th-TH', {
                       month: 'short',
                       day: 'numeric',
                       hour: '2-digit',
@@ -311,39 +293,39 @@ const ShipmentsTable = ({ searchTerm, filters }: ShipmentsTableProps) => {
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  {getStatusBadge(shipment.status)}
+                  {getStatusBadge(shipment?.shipmentStatus)}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  {getPriorityBadge(shipment.priority)}
+                  {getPriorityBadge(shipment?.shipmentPriority)}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center space-x-2">
                     <div className="w-16 bg-gray-200 rounded-full h-2">
                       <div 
                         className="bg-primary h-2 rounded-full transition-all duration-300"
-                        style={{ width: `${shipment.progress}%` }}
+                        style={{ width: `${shipment?.progressPercentage}%` }}
                       ></div>
                     </div>
-                    <span className="text-xs text-muted-foreground">{shipment.progress}%</span>
+                    <span className="text-xs text-muted-foreground">{shipment?.progressPercentage}%</span>
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right">
                   <div className="flex items-center justify-end space-x-2">
                     <button 
                       className="p-1 text-muted-foreground hover:text-foreground transition-smooth"
-                      title="View details"
+                      title="ดูรายละเอียด"
                     >
                       <Icon name="EyeIcon" size={16} />
                     </button>
                     <button 
                       className="p-1 text-muted-foreground hover:text-foreground transition-smooth"
-                      title="Track shipment"
+                      title="ติดตามพัสดุ"
                     >
                       <Icon name="MapPinIcon" size={16} />
                     </button>
                     <button 
                       className="p-1 text-muted-foreground hover:text-foreground transition-smooth"
-                      title="More options"
+                      title="ตัวเลือกเพิ่มเติม"
                     >
                       <Icon name="EllipsisVerticalIcon" size={16} />
                     </button>
@@ -359,9 +341,9 @@ const ShipmentsTable = ({ searchTerm, filters }: ShipmentsTableProps) => {
       {filteredAndSortedShipments.length === 0 && (
         <div className="px-6 py-12 text-center">
           <Icon name="TruckIcon" size={48} className="mx-auto text-muted-foreground mb-4" />
-          <h3 className="text-lg font-medium text-foreground mb-2">No shipments found</h3>
+          <h3 className="text-lg font-medium text-foreground mb-2">ไม่พบข้อมูลการจัดส่ง</h3>
           <p className="text-muted-foreground">
-            Try adjusting your search criteria or filters to find shipments.
+            ลองปรับเปลี่ยนเงื่อนไขการค้นหาหรือตัวกรอง
           </p>
         </div>
       )}
@@ -371,17 +353,17 @@ const ShipmentsTable = ({ searchTerm, filters }: ShipmentsTableProps) => {
         <div className="px-6 py-4 border-t border-border">
           <div className="flex items-center justify-between">
             <div className="text-sm text-muted-foreground">
-              Showing {filteredAndSortedShipments.length} of {mockShipments.length} shipments
+              แสดง {filteredAndSortedShipments.length} จาก {shipments?.length || 0} รายการ
             </div>
             <div className="flex items-center space-x-2">
               <button className="px-3 py-1.5 text-sm border border-border rounded hover:bg-muted transition-smooth">
-                Previous
+                ก่อนหน้า
               </button>
               <button className="px-3 py-1.5 text-sm bg-primary text-primary-foreground rounded hover:bg-primary/90 transition-smooth">
                 1
               </button>
               <button className="px-3 py-1.5 text-sm border border-border rounded hover:bg-muted transition-smooth">
-                Next
+                ถัดไป
               </button>
             </div>
           </div>

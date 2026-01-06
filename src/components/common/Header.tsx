@@ -24,36 +24,36 @@ const Header = ({ className = '' }: HeaderProps) => {
   const notifications: Notification[] = [
     {
       id: '1',
-      message: 'Shipment SH-2024-1234 has been delivered successfully',
-      timestamp: '2 minutes ago',
+      message: 'การจัดส่ง SH-2024-1234 ได้รับการส่งมอบสำเร็จแล้ว',
+      timestamp: '2 นาทีที่แล้ว',
       status: 'success',
       read: false
     },
     {
       id: '2',
-      message: 'Delay alert: Port congestion detected at Los Angeles',
-      timestamp: '15 minutes ago',
+      message: 'แจ้งเตือนความล่าช้า: ตรวจพบความแออัดที่ท่าเรือลอสแองเจลิส',
+      timestamp: '15 นาทีที่แล้ว',
       status: 'warning',
       read: false
     },
     {
       id: '3',
-      message: 'Route optimization completed for 12 active shipments',
-      timestamp: '1 hour ago',
+      message: 'การเพิ่มประสิทธิภาพเส้นทางเสร็จสมบูรณ์สำหรับการจัดส่งที่ใช้งานอยู่ 12 รายการ',
+      timestamp: '1 ชั่วโมงที่แล้ว',
       status: 'info',
       read: true
     },
     {
       id: '4',
-      message: 'Critical: Weather disruption affecting Asia-Pacific routes',
-      timestamp: '2 hours ago',
+      message: 'วิกฤต: การหยุดชะงักจากสภาพอากาศส่งผลกระทบต่อเส้นทางเอเชีย-แปซิฟิก',
+      timestamp: '2 ชั่วโมงที่แล้ว',
       status: 'error',
       read: true
     },
     {
       id: '5',
-      message: 'New order received: Order #ORD-2024-5678',
-      timestamp: '3 hours ago',
+      message: 'ได้รับคำสั่งซื้อใหม่: คำสั่งซื้อ #ORD-2024-5678',
+      timestamp: '3 ชั่วโมงที่แล้ว',
       status: 'success',
       read: true
     }
@@ -122,7 +122,7 @@ const Header = ({ className = '' }: HeaderProps) => {
             />
             <input
               type="text"
-              placeholder="Search shipments, orders, or tracking numbers..."
+              placeholder="ค้นหาการจัดส่ง คำสั่งซื้อ หรือหมายเลขติดตาม..."
               className="w-full pl-10 pr-4 py-2 bg-muted border border-border rounded-lg text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-smooth"
             />
           </div>
@@ -149,10 +149,10 @@ const Header = ({ className = '' }: HeaderProps) => {
               <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-card border border-border rounded-lg shadow-lg z-50">
                 {/* Header */}
                 <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-                  <h3 className="text-sm font-semibold text-foreground">Notifications</h3>
+                  <h3 className="text-sm font-semibold text-foreground">การแจ้งเตือน</h3>
                   {unreadCount > 0 && (
                     <span className="text-xs text-muted-foreground">
-                      {unreadCount} unread
+                      {unreadCount} ยังไม่ได้อ่าน
                     </span>
                   )}
                 </div>
@@ -204,7 +204,7 @@ const Header = ({ className = '' }: HeaderProps) => {
           {/* Real-time Status */}
           <div className="hidden sm:flex items-center space-x-2 px-3 py-1.5 bg-success/10 text-success rounded-lg">
             <div className="w-2 h-2 bg-success rounded-full"></div>
-            <span className="text-xs font-medium">Live</span>
+            <span className="text-xs font-medium">สด</span>
           </div>
         </div>
       </div>

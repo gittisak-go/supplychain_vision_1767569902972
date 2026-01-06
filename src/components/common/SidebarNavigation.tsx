@@ -60,28 +60,28 @@ export const NavigationProvider = ({ children }: NavigationProviderProps) => {
 
 const navigationItems: NavigationItem[] = [
   {
-    label: 'Dashboard',
+    label: 'แดชบอร์ด',
     path: '/supply-chain-overview',
     icon: 'ChartBarIcon',
-    tooltip: 'Executive overview and command center for global operations'
+    tooltip: 'ภาพรวมผู้บริหารและศูนย์ควบคุมสำหรับการดำเนินงานทั่วโลก'
   },
   {
-    label: 'Live Tracking',
+    label: 'ติดตามสด',
     path: '/real-time-tracking',
     icon: 'MapIcon',
-    tooltip: 'Real-time operational coordination and shipment monitoring'
+    tooltip: 'การประสานงานการดำเนินงานแบบเรียลไทม์และการตรวจสอบการจัดส่ง'
   },
   {
-    label: 'Port Analytics',
+    label: 'วิเคราะห์ท่าเรือ',
     path: '/port-analytics',
     icon: 'BuildingOfficeIcon',
-    tooltip: 'Specialized capacity and congestion monitoring'
+    tooltip: 'การตรวจสอบกำลังการผลิตและความแออัดเฉพาะทาง'
   },
   {
-    label: 'Performance',
+    label: 'ประสิทธิภาพ',
     path: '/performance-analytics',
     icon: 'PresentationChartLineIcon',
-    tooltip: 'Strategic analytics and KPI tracking'
+    tooltip: 'การวิเคราะห์เชิงกลยุทธ์และการติดตาม KPI'
   }
 ];
 
@@ -199,7 +199,7 @@ const UserProfile = React.memo(({ isCollapsed }: UserProfileProps) => {
           ${isCollapsed ? 'justify-center' : ''}
           ${dropdownOpen ? 'bg-gray-800 text-white' : ''}
         `}
-        title={isCollapsed ? 'Sarah Wilson - Operations Manager' : undefined}
+        title={isCollapsed ? 'ซาราห์ วิลสัน - ผู้จัดการฝ่ายปฏิบัติการ' : undefined}
       >
         <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center flex-shrink-0 ring-2 ring-transparent group-hover:ring-primary/30 transition-smooth">
           <Icon name="UserIcon" size={20} className="text-primary-foreground" />
@@ -207,8 +207,8 @@ const UserProfile = React.memo(({ isCollapsed }: UserProfileProps) => {
         
         {!isCollapsed && (
           <div className="ml-3 flex-1 min-w-0">
-            <div className="text-sm font-medium text-white truncate">Sarah Wilson</div>
-            <div className="text-xs text-gray-400 truncate">Operations Manager</div>
+            <div className="text-sm font-medium text-white truncate">ซาราห์ วิลสัน</div>
+            <div className="text-xs text-gray-400 truncate">ผู้จัดการฝ่ายปฏิบัติการ</div>
           </div>
         )}
         
@@ -222,8 +222,8 @@ const UserProfile = React.memo(({ isCollapsed }: UserProfileProps) => {
         
         {isCollapsed && (
           <div className="absolute left-full ml-2 px-3 py-2 bg-gray-900 text-white text-xs rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-smooth z-1100 whitespace-nowrap">
-            <div className="font-medium">Sarah Wilson</div>
-            <div className="text-gray-400">Operations Manager</div>
+            <div className="font-medium">ซาราห์ วิลสัน</div>
+            <div className="text-gray-400">ผู้จัดการฝ่ายปฏิบัติการ</div>
           </div>
         )}
       </div>
@@ -284,8 +284,8 @@ const SidebarNavigation = ({ className = '' }: SidebarNavigationProps) => {
               <Icon name="TruckIcon" size={20} className="text-primary-foreground" />
             </div>
             <div className="flex flex-col">
-              <span className="text-white font-semibold text-sm">SupplyChain</span>
-              <span className="text-gray-400 text-xs">Vision</span>
+              <span className="text-white font-semibold text-sm">GtsAlpha</span>
+              <span className="text-gray-400 text-xs">MCP</span>
             </div>
           </div>
         ) : (
@@ -317,7 +317,7 @@ const SidebarNavigation = ({ className = '' }: SidebarNavigationProps) => {
         <button
           onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
           className="w-full flex items-center justify-center h-10 text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition-smooth"
-          title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          title={sidebarCollapsed ? 'ขยายแถบด้านข้าง' : 'ย่อแถบด้านข้าง'}
         >
           <Icon 
             name={sidebarCollapsed ? 'ChevronRightIcon' : 'ChevronLeftIcon'} 
