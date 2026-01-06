@@ -9,7 +9,7 @@ type AuthMode = 'login' | 'signup';
 
 export default function AuthenticationPage() {
   const router = useRouter();
-  const { user, signIn, loading } = useAuth();
+  const { user, signIn, signUp, loading } = useAuth();
   const [authMode, setAuthMode] = useState<AuthMode>('login');
   const [formData, setFormData] = useState({
     email: '',
@@ -78,7 +78,18 @@ export default function AuthenticationPage() {
           setAuthError(error.message || 'เข้าสู่ระบบไม่สำเร็จ');
         }
       } else {
-        setAuthError('การลงทะเบียนยังไม่พร้อมใช้งาน กรุณาใช้ข้อมูลทดสอบเพื่อเข้าสู่ระบบ');
+        const { data, error } = await signUp(
+          formData.email, 
+          formData.password, 
+          formData.fullName,
+          { company: formData.company }
+        );
+        
+        if (error) {
+          setAuthError(error.message || 'การสมัครสมาชิกไม่สำเร็จ');
+        } else if (data?.user) {
+          router.push('/signup-confirmation');
+        }
       }
     } catch (err) {
       setAuthError('เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาลองใหม่อีกครั้ง');

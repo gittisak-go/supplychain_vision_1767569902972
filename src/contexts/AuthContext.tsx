@@ -16,6 +16,7 @@ interface AuthContextType {
   loading: boolean
   profileLoading: boolean
   signIn: (email: string, password: string) => Promise<any>
+  signUp: (email: string, password: string, fullName: string, metadata?: any) => Promise<any>
   signOut: () => Promise<any>
   updateProfile: (updates: Partial<UserProfile>) => Promise<any>
   isAuthenticated: boolean
@@ -88,6 +89,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }
 
+  const signUp = async (email: string, password: string, fullName: string, metadata?: any) => {
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: fullName,
+            ...metadata
+          },
+          emailRedirectTo: `${window.location.origin}/signup-confirmation`
+        }
+      })
+      return { data, error }
+    } catch {
+      return { error: { message: 'Network error. Please try again.' } }
+    }
+  }
+
   const signOut = async () => {
     try {
       const { error } = await supabase.auth.signOut()
@@ -123,6 +143,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     loading,
     profileLoading,
     signIn,
+    signUp,
     signOut,
     updateProfile,
     isAuthenticated: !!user,

@@ -167,14 +167,14 @@ CREATE POLICY "authenticated_create_shipments"
 ON public.shipments
 FOR INSERT
 TO authenticated
-WITH CHECK (created_by = auth.uid()::uuid);
+WITH CHECK (created_by = (auth.uid())::uuid);
 
 CREATE POLICY "authenticated_update_own_shipments"
 ON public.shipments
 FOR UPDATE
 TO authenticated
-USING (created_by = auth.uid()::uuid)
-WITH CHECK (created_by = auth.uid()::uuid);
+USING (created_by = (auth.uid())::uuid)
+WITH CHECK (created_by = (auth.uid())::uuid);
 
 -- Tracking events follow shipment permissions
 CREATE POLICY "authenticated_read_tracking_events"
@@ -184,7 +184,7 @@ TO authenticated
 USING (
     EXISTS (
         SELECT 1 FROM public.shipments s
-        WHERE s.id = shipment_id
+        WHERE s.id = tracking_events.shipment_id
     )
 );
 
@@ -195,8 +195,8 @@ TO authenticated
 WITH CHECK (
     EXISTS (
         SELECT 1 FROM public.shipments s
-        WHERE s.id = shipment_id
-        AND s.created_by = auth.uid()::uuid
+        WHERE s.id = tracking_events.shipment_id
+        AND s.created_by = (auth.uid())::uuid
     )
 );
 
@@ -265,15 +265,15 @@ BEGIN
          CURRENT_TIMESTAMP + INTERVAL '2 days', 'in-transit', 'high', 60,
          CURRENT_TIMESTAMP - INTERVAL '30 minutes', 38.8951, -77.0369, user_id);
 
-    -- Insert tracking events
+    -- Insert tracking events with explicit UUID casting
     INSERT INTO public.tracking_events (shipment_id, event_type, event_description, event_location, event_timestamp) VALUES
-        (shipment1_id, 'departure', 'Shipment departed from Port of Los Angeles', 'Los Angeles, CA', CURRENT_TIMESTAMP - INTERVAL '2 days'),
-        (shipment1_id, 'customs_clearance', 'Customs clearance completed', 'Phoenix, AZ', CURRENT_TIMESTAMP - INTERVAL '1 day'),
-        (shipment2_id, 'departure', 'Shipment departed from Port of Seattle', 'Seattle, WA', CURRENT_TIMESTAMP - INTERVAL '3 days'),
-        (shipment2_id, 'delay', 'Weather delay - Expected 6 hour delay', 'Denver, CO', CURRENT_TIMESTAMP - INTERVAL '1 day'),
-        (shipment3_id, 'departure', 'Shipment departed from Port of Chicago', 'Chicago, IL', CURRENT_TIMESTAMP - INTERVAL '3 days'),
-        (shipment3_id, 'arrival', 'Arrived at destination port', 'Los Angeles, CA', CURRENT_TIMESTAMP - INTERVAL '1 day'),
-        (shipment3_id, 'delivery', 'Shipment delivered successfully', 'Los Angeles, CA', CURRENT_TIMESTAMP - INTERVAL '1 day');
+        (shipment1_id::uuid, 'departure', 'Shipment departed from Port of Los Angeles', 'Los Angeles, CA', CURRENT_TIMESTAMP - INTERVAL '2 days'),
+        (shipment1_id::uuid, 'customs_clearance', 'Customs clearance completed', 'Phoenix, AZ', CURRENT_TIMESTAMP - INTERVAL '1 day'),
+        (shipment2_id::uuid, 'departure', 'Shipment departed from Port of Seattle', 'Seattle, WA', CURRENT_TIMESTAMP - INTERVAL '3 days'),
+        (shipment2_id::uuid, 'delay', 'Weather delay - Expected 6 hour delay', 'Denver, CO', CURRENT_TIMESTAMP - INTERVAL '1 day'),
+        (shipment3_id::uuid, 'departure', 'Shipment departed from Port of Chicago', 'Chicago, IL', CURRENT_TIMESTAMP - INTERVAL '3 days'),
+        (shipment3_id::uuid, 'arrival', 'Arrived at destination port', 'Los Angeles, CA', CURRENT_TIMESTAMP - INTERVAL '1 day'),
+        (shipment3_id::uuid, 'delivery', 'Shipment delivered successfully', 'Los Angeles, CA', CURRENT_TIMESTAMP - INTERVAL '1 day');
 
     -- Insert port metrics
     INSERT INTO public.port_metrics (port_id, metric_date, vessels_arrived, vessels_departed, average_wait_time_hours, throughput_teu, congestion_level) VALUES

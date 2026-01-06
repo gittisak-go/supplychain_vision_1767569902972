@@ -312,6 +312,32 @@ const SidebarNavigation = ({ className = '' }: SidebarNavigationProps) => {
         ))}
       </div>
 
+      {/* Footer Links - Privacy & Terms */}
+      {!sidebarCollapsed && (
+        <div className="px-3 py-3 border-t border-gray-800">
+          <div className="space-y-1">
+            <Link
+              href="https://gtsalpha.in.th/privacy-policy"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center px-3 py-2 text-xs text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-smooth"
+            >
+              <Icon name="ShieldCheckIcon" size={14} className="mr-2 flex-shrink-0" />
+              <span>นโยบายความเป็นส่วนตัว</span>
+            </Link>
+            <Link
+              href="https://gtsalpha.in.th/terms-of-service"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center px-3 py-2 text-xs text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-smooth"
+            >
+              <Icon name="DocumentTextIcon" size={14} className="mr-2 flex-shrink-0" />
+              <span>ข้อกำหนดการให้บริการ</span>
+            </Link>
+          </div>
+        </div>
+      )}
+
       {/* Collapse Toggle */}
       <div className="p-3 border-t border-gray-800">
         <button
