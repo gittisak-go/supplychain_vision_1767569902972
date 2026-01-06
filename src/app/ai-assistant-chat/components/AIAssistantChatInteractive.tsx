@@ -33,7 +33,7 @@ export default function AIAssistantChatInteractive() {
     {
       id: '1',
       role: 'model',
-      content: 'สวัสดีครับ! ผมคือผู้ช่วย AI ของ GtsAlpha MCP พร้อมช่วยเหลือคุณในเรื่องการวิเคราะห์ซัพพลายเชน การติดตามการขนส่ง และให้คำแนะนำในการดำเนินงาน มีอะไรให้ช่วยไหมครับ?',
+      content: 'สวัสดีครับ! ผมคือผู้ช่วย AI ของ GtsAlpha MCP พร้อมช่วยเหลือคุณในเรื่องการวิเคราะห์ซัพพลายเชน การติดตามการขนส่ง การจัดการฝูงยานพาหนะ การจองและให้คำแนะนำในการดำเนินงาน ผมสามารถดึงข้อมูลแบบเรียลไทม์จากระบบเพื่อให้คำแนะนำที่แม่นยำ มีอะไรให้ช่วยไหมครับ?',
       timestamp: new Date(),
     }
   ]);
@@ -41,10 +41,12 @@ export default function AIAssistantChatInteractive() {
   const [isLoading, setIsLoading] = useState(false);
   const [conversationContext, setConversationContext] = useState<ConversationContext>({
     topics: ['ภาพรวมระบบ', 'การเริ่มต้นใช้งาน'],
-    relatedData: ['แดชบอร์ดภาพรวม', 'การติดตามแบบเรียลไทม์'],
+    relatedData: ['แดชบอร์ดภาพรวม', 'การติดตามแบบเรียลไทม์', 'การจัดการฝูงยานพาหนะ'],
     suggestedQuestions: [
       'ช่วยวิเคราะห์ประสิทธิภาพการจัดส่งให้หน่อย',
       'มีการส่งล่าช้าหรือไม่?',
+      'ยานพาหนะมีกี่คันว่างอยู่?',
+      'มีการจองที่กำลังจะมาถึงกี่รายการ?',
       'ท่าเรือไหนมีความหนาแน่นสูง?'
     ]
   });
@@ -93,7 +95,15 @@ export default function AIAssistantChatInteractive() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to get response');
+        const errorData = await response.json().catch(() => ({ error: 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้' }));
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+      }
+
+      // Check if response is SSE stream
+      const contentType = response.headers.get('content-type');
+      if (!contentType?.includes('text/event-stream')) {
+        const errorData = await response.json().catch(() => ({ error: 'รูปแบบการตอบกลับไม่ถูกต้อง' }));
+        throw new Error(errorData.error || 'รูปแบบการตอบกลับไม่ถูกต้อง');
       }
 
       const reader = response.body?.getReader();
@@ -134,7 +144,7 @@ export default function AIAssistantChatInteractive() {
                   );
                 }
               } catch (e) {
-                // Skip invalid JSON
+                console.warn('Failed to parse SSE data:', data);
               }
             }
           }
@@ -147,10 +157,11 @@ export default function AIAssistantChatInteractive() {
     } catch (error: unknown) {
       if (error instanceof Error && error.name !== 'AbortError') {
         console.error('Error sending message:', error);
+        const errorMessage = error.message || 'เกิดข้อผิดพลาดในการประมวลผล';
         setMessages(prev => [...prev, {
           id: (Date.now() + 1).toString(),
           role: 'model',
-          content: 'ขอโทษครับ เกิดข้อผิดพลาดในการประมวลผล กรุณาลองใหม่อีกครั้ง',
+          content: `❌ ${errorMessage}\n\nกรุณาตรวจสอบ:\n• การเชื่อมต่ออินเทอร์เน็ต\n• การตั้งค่า API Key\n• ลองรีเฟรชหน้าเว็บแล้วลองใหม่อีกครั้ง`,
           timestamp: new Date(),
         }]);
       }
@@ -161,7 +172,7 @@ export default function AIAssistantChatInteractive() {
   };
 
   const updateConversationContext = (userQuery: string, aiResponse: string) => {
-    // Simple context extraction based on keywords
+    // Enhanced context extraction based on keywords
     const topics = new Set(conversationContext.topics);
     
     if (userQuery.includes('การจัดส่ง') || aiResponse.includes('การจัดส่ง')) {
@@ -173,10 +184,35 @@ export default function AIAssistantChatInteractive() {
     if (userQuery.includes('ประสิทธิภาพ') || aiResponse.includes('ประสิทธิภาพ')) {
       topics.add('การวิเคราะห์ประสิทธิภาพ');
     }
+    if (userQuery.includes('ยานพาหนะ') || userQuery.includes('รถ') || aiResponse.includes('ยานพาหนะ')) {
+      topics.add('การจัดการฝูงยานพาหนะ');
+    }
+    if (userQuery.includes('จอง') || userQuery.includes('การเช่า') || aiResponse.includes('การจอง')) {
+      topics.add('การจองและการเช่า');
+    }
+
+    // Update related data based on topics
+    const relatedData = ['แดชบอร์ดภาพรวม'];
+    if (topics.has('การจัดส่ง')) {
+      relatedData.push('การติดตามแบบเรียลไทม์');
+    }
+    if (topics.has('การวิเคราะห์ท่าเรือ')) {
+      relatedData.push('การวิเคราะห์ท่าเรือ');
+    }
+    if (topics.has('การวิเคราะห์ประสิทธิภาพ')) {
+      relatedData.push('การวิเคราะห์ประสิทธิภาพ');
+    }
+    if (topics.has('การจัดการฝูงยานพาหนะ')) {
+      relatedData.push('การจัดการฝูงยานพาหนะ');
+    }
+    if (topics.has('การจองและการเช่า')) {
+      relatedData.push('การจองรถยนต์');
+    }
 
     setConversationContext(prev => ({
       ...prev,
       topics: Array.from(topics).slice(-5), // Keep last 5 topics
+      relatedData: relatedData
     }));
   };
 
