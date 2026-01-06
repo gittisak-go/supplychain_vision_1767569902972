@@ -8,13 +8,12 @@ import { QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
 type IconVariant = 'outline' | 'solid';
 
 interface IconProps {
-    name: string; // Changed to string to accept dynamic values
+    name: string;
     variant?: IconVariant;
     size?: number;
     className?: string;
     onClick?: () => void;
     disabled?: boolean;
-    [key: string]: any;
 }
 
 function Icon({
@@ -24,7 +23,6 @@ function Icon({
     className = '',
     onClick,
     disabled = false,
-    ...props
 }: IconProps) {
     const iconSet = variant === 'solid' ? HeroIconsSolid : HeroIcons;
     const IconComponent = iconSet[name as keyof typeof iconSet] as React.ComponentType<any>;
@@ -36,7 +34,6 @@ function Icon({
                 height={size}
                 className={`text-gray-400 ${disabled ? 'opacity-50 cursor-not-allowed' : ''} ${className}`}
                 onClick={disabled ? undefined : onClick}
-                {...props}
             />
         );
     }
@@ -47,9 +44,9 @@ function Icon({
             height={size}
             className={`${disabled ? 'opacity-50 cursor-not-allowed' : onClick ? 'cursor-pointer hover:opacity-80' : ''} ${className}`}
             onClick={disabled ? undefined : onClick}
-            {...props}
         />
     );
 }
 
-export default Icon; 
+export default Icon;
+export { Icon as AppIcon };

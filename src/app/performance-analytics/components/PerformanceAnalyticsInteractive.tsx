@@ -38,6 +38,158 @@ interface TrendDataPoint {
   anomalyType?: 'delay' | 'cost' | 'volume';
 }
 
+const mockKPIMetrics: KPIMetric[] = [
+  {
+    id: '1',
+    title: 'On-Time Delivery Rate',
+    value: '94.2%',
+    change: 2.3,
+    trend: 'up',
+    sparklineData: [91, 92, 93, 91, 94, 95, 94],
+    color: 'from-green-500 to-green-600',
+    icon: 'TruckIcon'
+  },
+  {
+    id: '2',
+    title: 'Cost Per Shipment',
+    value: '$127.50',
+    change: -1.8,
+    trend: 'down',
+    sparklineData: [135, 132, 130, 129, 128, 127, 128],
+    color: 'from-blue-500 to-blue-600',
+    icon: 'CurrencyDollarIcon'
+  },
+  {
+    id: '3',
+    title: 'Vendor Performance Score',
+    value: '87.6',
+    change: 4.1,
+    trend: 'up',
+    sparklineData: [82, 84, 85, 86, 87, 88, 88],
+    color: 'from-pink-500 to-pink-600',
+    icon: 'UserGroupIcon'
+  },
+  {
+    id: '4',
+    title: 'Predictive Accuracy',
+    value: '91.8%',
+    change: 1.2,
+    trend: 'up',
+    sparklineData: [89, 90, 91, 90, 92, 92, 92],
+    color: 'from-yellow-500 to-yellow-600',
+    icon: 'ChartBarIcon'
+  }
+];
+
+const mockChartData: ChartDataPoint[] = [
+  { month: 'Jan 2024', onTimeDelivery: 92.1, averageDelay: 4.2, costPerShipment: 135, vendorScore: 85, predictedDelivery: 90.5 },
+  { month: 'Feb 2024', onTimeDelivery: 91.8, averageDelay: 4.5, costPerShipment: 132, vendorScore: 84, predictedDelivery: 89.8 },
+  { month: 'Mar 2024', onTimeDelivery: 93.2, averageDelay: 3.8, costPerShipment: 130, vendorScore: 86, predictedDelivery: 91.2 },
+  { month: 'Apr 2024', onTimeDelivery: 92.5, averageDelay: 4.1, costPerShipment: 129, vendorScore: 85, predictedDelivery: 90.8 },
+  { month: 'May 2024', onTimeDelivery: 94.1, averageDelay: 3.5, costPerShipment: 128, vendorScore: 87, predictedDelivery: 92.1 },
+  { month: 'Jun 2024', onTimeDelivery: 93.8, averageDelay: 3.7, costPerShipment: 127, vendorScore: 88, predictedDelivery: 91.8 },
+  { month: 'Jul 2024', onTimeDelivery: 94.5, averageDelay: 3.2, costPerShipment: 128, vendorScore: 87, predictedDelivery: 92.5 },
+  { month: 'Aug 2024', onTimeDelivery: 93.9, averageDelay: 3.6, costPerShipment: 126, vendorScore: 89, predictedDelivery: 91.9 },
+  { month: 'Sep 2024', onTimeDelivery: 95.2, averageDelay: 2.9, costPerShipment: 125, vendorScore: 88, predictedDelivery: 93.2 },
+  { month: 'Oct 2024', onTimeDelivery: 94.8, averageDelay: 3.1, costPerShipment: 127, vendorScore: 89, predictedDelivery: 92.8 },
+  { month: 'Nov 2024', onTimeDelivery: 94.2, averageDelay: 3.4, costPerShipment: 128, vendorScore: 88, predictedDelivery: 92.2 }
+];
+
+const mockHistoricalData: TrendDataPoint[] = [
+  { period: 'Q1 2023', deliveryRate: 89.2, cost: 140, volume: 1250, seasonalIndex: 0.95 },
+  { period: 'Q2 2023', deliveryRate: 91.1, cost: 138, volume: 1380, seasonalIndex: 1.05 },
+  { period: 'Q3 2023', deliveryRate: 88.5, cost: 142, volume: 1420, seasonalIndex: 1.10, anomaly: true, anomalyType: 'delay' },
+  { period: 'Q4 2023', deliveryRate: 90.8, cost: 139, volume: 1680, seasonalIndex: 1.15 },
+  { period: 'Q1 2024', deliveryRate: 92.4, cost: 135, volume: 1320, seasonalIndex: 0.98 },
+  { period: 'Q2 2024', deliveryRate: 93.1, cost: 132, volume: 1450, seasonalIndex: 1.08 },
+  { period: 'Q3 2024', deliveryRate: 94.5, cost: 128, volume: 1520, seasonalIndex: 1.12 },
+  { period: 'Q4 2024', deliveryRate: 94.2, cost: 127, volume: 1750, seasonalIndex: 1.18 }
+];
+
+const mockInsights = [
+  {
+    id: '1',
+    type: 'success' as const,
+    title: 'Delivery Performance Improvement',
+    description: 'On-time delivery rate increased by 2.3% compared to last period',
+    impact: 'Customer satisfaction up 5%, reduced complaints by 18%',
+    action: 'Continue current optimization strategies'
+  },
+  {
+    id: '2',
+    type: 'warning' as const,
+    title: 'Seasonal Volume Spike Expected',
+    description: 'Historical data indicates 15% volume increase in next quarter',
+    impact: 'Potential capacity constraints, delivery delays possible',
+    action: 'Scale resources, negotiate additional carrier capacity'
+  },
+  {
+    id: '3',
+    type: 'info' as const,
+    title: 'Cost Optimization Success',
+    description: 'Cost per shipment reduced by $7.50 through route optimization',
+    impact: 'Annual savings projection: $2.1M',
+    action: 'Expand optimization to additional routes'
+  }
+];
+
+const mockBottlenecks = [
+  {
+    id: '1',
+    location: 'Los Angeles Port',
+    severity: 'high' as const,
+    impact: 'Causing 2-3 day delays for West Coast shipments',
+    affectedShipments: 145,
+    estimatedDelay: '2.5 days'
+  },
+  {
+    id: '2',
+    location: 'Chicago Distribution Hub',
+    severity: 'medium' as const,
+    impact: 'Processing delays during peak hours',
+    affectedShipments: 89,
+    estimatedDelay: '8 hours'
+  },
+  {
+    id: '3',
+    location: 'I-95 Corridor',
+    severity: 'low' as const,
+    impact: 'Weather-related slowdowns',
+    affectedShipments: 34,
+    estimatedDelay: '4 hours'
+  }
+];
+
+const mockRecommendations = [
+  {
+    id: '1',
+    category: 'Route Optimization',
+    title: 'Implement Dynamic Routing',
+    description: 'Deploy AI-powered dynamic routing to avoid congestion and optimize delivery times',
+    potentialSavings: '$850K annually',
+    implementation: '3-4 months',
+    priority: 'high' as const
+  },
+  {
+    id: '2',
+    category: 'Vendor Management',
+    title: 'Diversify Carrier Portfolio',
+    description: 'Add 2-3 regional carriers to reduce dependency on primary carriers',
+    potentialSavings: '$420K annually',
+    implementation: '6-8 weeks',
+    priority: 'medium' as const
+  },
+  {
+    id: '3',
+    category: 'Predictive Analytics',
+    title: 'Enhanced Demand Forecasting',
+    description: 'Implement machine learning models for better demand prediction',
+    potentialSavings: '$1.2M annually',
+    implementation: '4-6 months',
+    priority: 'high' as const
+  }
+];
+
 const PerformanceAnalyticsInteractive = () => {
   const [isHydrated, setIsHydrated] = useState(false);
   const [selectedDateMode, setSelectedDateMode] = useState('period-over-period');
@@ -149,158 +301,6 @@ const PerformanceAnalyticsInteractive = () => {
       alert('PDF export will be available soon. For now, please use CSV or Excel export.');
     }
   };
-
-  const mockKPIMetrics: KPIMetric[] = [
-    {
-      id: '1',
-      title: 'On-Time Delivery Rate',
-      value: '94.2%',
-      change: 2.3,
-      trend: 'up',
-      sparklineData: [91, 92, 93, 91, 94, 95, 94],
-      color: 'from-green-500 to-green-600',
-      icon: 'TruckIcon'
-    },
-    {
-      id: '2',
-      title: 'Cost Per Shipment',
-      value: '$127.50',
-      change: -1.8,
-      trend: 'down',
-      sparklineData: [135, 132, 130, 129, 128, 127, 128],
-      color: 'from-blue-500 to-blue-600',
-      icon: 'CurrencyDollarIcon'
-    },
-    {
-      id: '3',
-      title: 'Vendor Performance Score',
-      value: '87.6',
-      change: 4.1,
-      trend: 'up',
-      sparklineData: [82, 84, 85, 86, 87, 88, 88],
-      color: 'from-pink-500 to-pink-600',
-      icon: 'UserGroupIcon'
-    },
-    {
-      id: '4',
-      title: 'Predictive Accuracy',
-      value: '91.8%',
-      change: 1.2,
-      trend: 'up',
-      sparklineData: [89, 90, 91, 90, 92, 92, 92],
-      color: 'from-yellow-500 to-yellow-600',
-      icon: 'ChartBarIcon'
-    }
-  ];
-
-  const mockChartData: ChartDataPoint[] = [
-    { month: 'Jan 2024', onTimeDelivery: 92.1, averageDelay: 4.2, costPerShipment: 135, vendorScore: 85, predictedDelivery: 90.5 },
-    { month: 'Feb 2024', onTimeDelivery: 91.8, averageDelay: 4.5, costPerShipment: 132, vendorScore: 84, predictedDelivery: 89.8 },
-    { month: 'Mar 2024', onTimeDelivery: 93.2, averageDelay: 3.8, costPerShipment: 130, vendorScore: 86, predictedDelivery: 91.2 },
-    { month: 'Apr 2024', onTimeDelivery: 92.5, averageDelay: 4.1, costPerShipment: 129, vendorScore: 85, predictedDelivery: 90.8 },
-    { month: 'May 2024', onTimeDelivery: 94.1, averageDelay: 3.5, costPerShipment: 128, vendorScore: 87, predictedDelivery: 92.1 },
-    { month: 'Jun 2024', onTimeDelivery: 93.8, averageDelay: 3.7, costPerShipment: 127, vendorScore: 88, predictedDelivery: 91.8 },
-    { month: 'Jul 2024', onTimeDelivery: 94.5, averageDelay: 3.2, costPerShipment: 128, vendorScore: 87, predictedDelivery: 92.5 },
-    { month: 'Aug 2024', onTimeDelivery: 93.9, averageDelay: 3.6, costPerShipment: 126, vendorScore: 89, predictedDelivery: 91.9 },
-    { month: 'Sep 2024', onTimeDelivery: 95.2, averageDelay: 2.9, costPerShipment: 125, vendorScore: 88, predictedDelivery: 93.2 },
-    { month: 'Oct 2024', onTimeDelivery: 94.8, averageDelay: 3.1, costPerShipment: 127, vendorScore: 89, predictedDelivery: 92.8 },
-    { month: 'Nov 2024', onTimeDelivery: 94.2, averageDelay: 3.4, costPerShipment: 128, vendorScore: 88, predictedDelivery: 92.2 }
-  ];
-
-  const mockHistoricalData: TrendDataPoint[] = [
-    { period: 'Q1 2023', deliveryRate: 89.2, cost: 140, volume: 1250, seasonalIndex: 0.95 },
-    { period: 'Q2 2023', deliveryRate: 91.1, cost: 138, volume: 1380, seasonalIndex: 1.05 },
-    { period: 'Q3 2023', deliveryRate: 88.5, cost: 142, volume: 1420, seasonalIndex: 1.10, anomaly: true, anomalyType: 'delay' },
-    { period: 'Q4 2023', deliveryRate: 90.8, cost: 139, volume: 1680, seasonalIndex: 1.15 },
-    { period: 'Q1 2024', deliveryRate: 92.4, cost: 135, volume: 1320, seasonalIndex: 0.98 },
-    { period: 'Q2 2024', deliveryRate: 93.1, cost: 132, volume: 1450, seasonalIndex: 1.08 },
-    { period: 'Q3 2024', deliveryRate: 94.5, cost: 128, volume: 1520, seasonalIndex: 1.12 },
-    { period: 'Q4 2024', deliveryRate: 94.2, cost: 127, volume: 1750, seasonalIndex: 1.18 }
-  ];
-
-  const mockInsights = [
-    {
-      id: '1',
-      type: 'success' as const,
-      title: 'Delivery Performance Improvement',
-      description: 'On-time delivery rate increased by 2.3% compared to last period',
-      impact: 'Customer satisfaction up 5%, reduced complaints by 18%',
-      action: 'Continue current optimization strategies'
-    },
-    {
-      id: '2',
-      type: 'warning' as const,
-      title: 'Seasonal Volume Spike Expected',
-      description: 'Historical data indicates 15% volume increase in next quarter',
-      impact: 'Potential capacity constraints, delivery delays possible',
-      action: 'Scale resources, negotiate additional carrier capacity'
-    },
-    {
-      id: '3',
-      type: 'info' as const,
-      title: 'Cost Optimization Success',
-      description: 'Cost per shipment reduced by $7.50 through route optimization',
-      impact: 'Annual savings projection: $2.1M',
-      action: 'Expand optimization to additional routes'
-    }
-  ];
-
-  const mockBottlenecks = [
-    {
-      id: '1',
-      location: 'Los Angeles Port',
-      severity: 'high' as const,
-      impact: 'Causing 2-3 day delays for West Coast shipments',
-      affectedShipments: 145,
-      estimatedDelay: '2.5 days'
-    },
-    {
-      id: '2',
-      location: 'Chicago Distribution Hub',
-      severity: 'medium' as const,
-      impact: 'Processing delays during peak hours',
-      affectedShipments: 89,
-      estimatedDelay: '8 hours'
-    },
-    {
-      id: '3',
-      location: 'I-95 Corridor',
-      severity: 'low' as const,
-      impact: 'Weather-related slowdowns',
-      affectedShipments: 34,
-      estimatedDelay: '4 hours'
-    }
-  ];
-
-  const mockRecommendations = [
-    {
-      id: '1',
-      category: 'Route Optimization',
-      title: 'Implement Dynamic Routing',
-      description: 'Deploy AI-powered dynamic routing to avoid congestion and optimize delivery times',
-      potentialSavings: '$850K annually',
-      implementation: '3-4 months',
-      priority: 'high' as const
-    },
-    {
-      id: '2',
-      category: 'Vendor Management',
-      title: 'Diversify Carrier Portfolio',
-      description: 'Add 2-3 regional carriers to reduce dependency on primary carriers',
-      potentialSavings: '$420K annually',
-      implementation: '6-8 weeks',
-      priority: 'medium' as const
-    },
-    {
-      id: '3',
-      category: 'Predictive Analytics',
-      title: 'Enhanced Demand Forecasting',
-      description: 'Implement machine learning models for better demand prediction',
-      potentialSavings: '$1.2M annually',
-      implementation: '4-6 months',
-      priority: 'high' as const
-    }
-  ];
 
   if (!isHydrated) {
     return (

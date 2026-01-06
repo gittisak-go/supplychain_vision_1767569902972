@@ -1,9 +1,10 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useContext, createContext } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import Icon from '@/components/ui/AppIcon';
+import { useAuth } from '@/contexts/AuthContext';
+import { AppIcon } from '../ui/AppIcon';
 
 interface NavigationItem {
   label: string;
@@ -85,274 +86,106 @@ const navigationItems: NavigationItem[] = [
   }
 ];
 
-interface NavigationItemProps {
-  item: NavigationItem;
-  isActive: boolean;
-  isCollapsed: boolean;
-}
-
-const NavigationItem = React.memo(({ item, isActive, isCollapsed }: NavigationItemProps) => {
-  return (
-    <Link
-      href={item.path}
-      className={`
-        group relative flex items-center h-12 px-4 rounded-lg transition-smooth
-        ${isActive 
-          ? 'bg-primary text-primary-foreground shadow-card' 
-          : 'text-gray-300 hover:bg-gray-800 hover:text-white'
-        }
-      `}
-      title={isCollapsed ? item.tooltip : undefined}
-    >
-      <Icon 
-        name={item.icon as any}
-        size={20}
-        className="flex-shrink-0"
-      />
-      {!isCollapsed && (
-        <span className="ml-3 font-medium text-sm">
-          {item.label}
-        </span>
-      )}
-      
-      {isCollapsed && (
-        <div className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-smooth z-1100 whitespace-nowrap">
-          {item.tooltip}
-        </div>
-      )}
-    </Link>
-  );
-});
-
-NavigationItem.displayName = 'NavigationItem';
-
-interface UserProfileProps {
-  isCollapsed: boolean;
-}
-
-const UserProfile = React.memo(({ isCollapsed }: UserProfileProps) => {
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+export default function SidebarNavigation({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+  const pathname = usePathname();
   const router = useRouter();
+  const { user, signOut } = useAuth();
+  const [isMounted, setIsMounted] = useState(false);
 
-  // Close dropdown when clicking outside, but not on navigation items
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setDropdownOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    setIsMounted(true);
   }, []);
 
-  const handleProfileClick = () => {
-    if (!isCollapsed) {
-      setDropdownOpen(!dropdownOpen);
-    }
+  const handleSignOut = async () => {
+    await signOut();
+    router.push('/landing-page');
   };
 
-  const handleSignOut = () => {
-    // Handle logout logic here
-    console.log('Signing out...');
-    setDropdownOpen(false);
-    // You can add actual authentication logic here
-    router.push('/login'); // Redirect to login or handle auth state
-  };
-
-  // Handle navigation item clicks - keep dropdown open for navigation items
-  const handleNavigationClick = (href: string) => {
-    // Don't close dropdown for navigation items - let it stay open
-    router.push(href);
-  };
-
-  const profileMenuItems = [
-    {
-      icon: 'UserIcon',
-      label: 'โปรไฟล์',
-      href: '/user-profile'
-    },
-    {
-      icon: 'CogIcon',
-      label: 'การตั้งค่า',
-      href: '/user-preferences'
-    },
-    {
-      icon: 'DocumentTextIcon',
-      label: 'บันทึกกิจกรรม',
-      href: '/activity-log'
-    },
-    {
-      icon: 'ArrowRightOnRectangleIcon',
-      label: 'ออกจากระบบ',
-      onClick: handleSignOut
-    }
-  ];
+  if (!isMounted) {
+    return null;
+  }
 
   return (
-    <div className="relative" ref={dropdownRef}>
-      <div 
-        onClick={handleProfileClick}
-        className={`
-          group relative flex items-center p-4 text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition-smooth cursor-pointer
-          ${isCollapsed ? 'justify-center' : ''}
-          ${dropdownOpen ? 'bg-gray-800 text-white' : ''}
-        `}
-        title={isCollapsed ? 'ซาราห์ วิลสัน - ผู้จัดการฝ่ายปฏิบัติการ' : undefined}
+    <>
+      {/* Backdrop */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          onClick={onClose}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside
+        className={`fixed left-0 top-0 h-full bg-white border-r border-gray-200 z-50 transition-transform duration-300 ease-in-out lg:translate-x-0 ${
+          isOpen ? 'translate-x-0' : '-translate-x-full'
+        } w-64`}
       >
-        <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center flex-shrink-0 ring-2 ring-transparent group-hover:ring-primary/30 transition-smooth">
-          <Icon name="UserIcon" size={20} className="text-primary-foreground" />
-        </div>
-        
-        {!isCollapsed && (
-          <div className="ml-3 flex-1 min-w-0">
-            <div className="text-sm font-medium text-white truncate">ซาราห์ วิลสัน</div>
-            <div className="text-xs text-gray-400 truncate">ผู้จัดการฝ่ายปฏิบัติการ</div>
+        <div className="flex flex-col h-full">
+          {/* Logo */}
+          <div className="flex items-center justify-between p-4 border-b border-gray-200">
+            <Link href="/" className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                <AppIcon name="ChartBarIcon" className="h-5 w-5 text-white" />
+              </div>
+              <span className="text-xl font-bold text-gray-900">GtsAlpha MCP</span>
+            </Link>
+            <button
+              onClick={onClose}
+              className="lg:hidden text-gray-500 hover:text-gray-700"
+            >
+              <AppIcon name="XMarkIcon" className="h-6 w-6" />
+            </button>
           </div>
-        )}
-        
-        {!isCollapsed && (
-          <Icon 
-            name="ChevronDownIcon" 
-            size={16} 
-            className={`ml-2 text-gray-400 group-hover:text-gray-200 transition-smooth flex-shrink-0 ${dropdownOpen ? 'rotate-180' : ''}`}
-          />
-        )}
-        
-        {isCollapsed && (
-          <div className="absolute left-full ml-2 px-3 py-2 bg-gray-900 text-white text-xs rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-smooth z-1100 whitespace-nowrap">
-            <div className="font-medium">ซาราห์ วิลสัน</div>
-            <div className="text-gray-400">ผู้จัดการฝ่ายปฏิบัติการ</div>
-          </div>
-        )}
-      </div>
 
-      {/* Dropdown Menu */}
-      {dropdownOpen && !isCollapsed && (
-        <div className="mt-2 py-2 bg-gray-800 border border-gray-700 rounded-lg shadow-xl animate-in fade-in-0 zoom-in-95 duration-200">
-          {profileMenuItems.map((item, index) => (
-            <div key={index}>
-              {item.href ? (
-                <button
-                  onClick={() => handleNavigationClick(item.href)}
-                  className="flex items-center w-full px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-gray-700 transition-smooth text-left"
-                >
-                  <Icon name={item.icon as any} size={16} className="mr-3 flex-shrink-0" />
-                  <span>{item.label}</span>
-                </button>
-              ) : (
-                <button
-                  onClick={item.onClick}
-                  className="flex items-center w-full px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-gray-700 transition-smooth"
-                >
-                  <Icon name={item.icon as any} size={16} className="mr-3 flex-shrink-0" />
-                  <span>{item.label}</span>
-                </button>
-              )}
+          {/* Navigation */}
+          <nav className="flex-1 overflow-y-auto p-4">
+            <div className="space-y-1">
+              {navigationItems.map((item) => {
+                const isActive = pathname === item.path;
+                return (
+                  <Link
+                    key={item.label}
+                    href={item.path}
+                    onClick={onClose}
+                    className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
+                      isActive
+                        ? 'bg-blue-50 text-blue-600' :'text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    <AppIcon name={item.icon} className="h-5 w-5" />
+                    <span className="font-medium">{item.label}</span>
+                  </Link>
+                );
+              })}
             </div>
-          ))}
+          </nav>
+
+          {/* User Profile */}
+          {user && (
+            <div className="p-4 border-t border-gray-200">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+                  <AppIcon name="UserIcon" className="h-6 w-6 text-gray-600" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-gray-900 truncate">
+                    {user.email}
+                  </p>
+                  <p className="text-xs text-gray-500">ผู้ใช้งาน</p>
+                </div>
+              </div>
+              <button
+                onClick={handleSignOut}
+                className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
+              >
+                <AppIcon name="ArrowRightOnRectangleIcon" className="h-5 w-5" />
+                <span className="font-medium">ออกจากระบบ</span>
+              </button>
+            </div>
+          )}
         </div>
-      )}
-    </div>
+      </aside>
+    </>
   );
-});
-
-UserProfile.displayName = 'UserProfile';
-
-interface SidebarNavigationProps {
-  className?: string;
 }
-
-const SidebarNavigation = ({ className = '' }: SidebarNavigationProps) => {
-  const { activeRoute, sidebarCollapsed, setSidebarCollapsed } = useNavigation();
-
-  return (
-    <nav 
-      className={`
-        fixed left-0 top-0 h-full bg-secondary border-r border-gray-800 z-100 transition-layout
-        ${sidebarCollapsed ? 'w-16' : 'w-60'}
-        hidden lg:flex flex-col
-        ${className}
-      `}
-    >
-      {/* Logo Section */}
-      <div className="flex items-center h-16 px-4 border-b border-gray-800">
-        {!sidebarCollapsed ? (
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <Icon name="TruckIcon" size={20} className="text-primary-foreground" />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-white font-semibold text-sm">GtsAlpha</span>
-              <span className="text-gray-400 text-xs">MCP</span>
-            </div>
-          </div>
-        ) : (
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center mx-auto">
-            <Icon name="TruckIcon" size={20} className="text-primary-foreground" />
-          </div>
-        )}
-      </div>
-
-      {/* User Profile Section */}
-      <div className="px-3 py-4 border-b border-gray-800">
-        <UserProfile isCollapsed={sidebarCollapsed} />
-      </div>
-
-      {/* Navigation Items */}
-      <div className="flex-1 px-3 py-6 space-y-2">
-        {navigationItems.map((item) => (
-          <NavigationItem
-            key={item.path}
-            item={item}
-            isActive={activeRoute === item.path}
-            isCollapsed={sidebarCollapsed}
-          />
-        ))}
-      </div>
-
-      {/* Footer Links - Privacy & Terms */}
-      {!sidebarCollapsed && (
-        <div className="px-3 py-3 border-t border-gray-800">
-          <div className="space-y-1">
-            <Link
-              href="https://gtsalpha.in.th/privacy-policy"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center px-3 py-2 text-xs text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-smooth"
-            >
-              <Icon name="ShieldCheckIcon" size={14} className="mr-2 flex-shrink-0" />
-              <span>นโยบายความเป็นส่วนตัว</span>
-            </Link>
-            <Link
-              href="https://gtsalpha.in.th/terms-of-service"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center px-3 py-2 text-xs text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-smooth"
-            >
-              <Icon name="DocumentTextIcon" size={14} className="mr-2 flex-shrink-0" />
-              <span>ข้อกำหนดการให้บริการ</span>
-            </Link>
-          </div>
-        </div>
-      )}
-
-      {/* Collapse Toggle */}
-      <div className="p-3 border-t border-gray-800">
-        <button
-          onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-          className="w-full flex items-center justify-center h-10 text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition-smooth"
-          title={sidebarCollapsed ? 'ขยายแถบด้านข้าง' : 'ย่อแถบด้านข้าง'}
-        >
-          <Icon 
-            name={sidebarCollapsed ? 'ChevronRightIcon' : 'ChevronLeftIcon'} 
-            size={20} 
-          />
-        </button>
-      </div>
-    </nav>
-  );
-};
-
-export default SidebarNavigation;
