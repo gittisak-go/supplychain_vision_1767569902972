@@ -83,6 +83,66 @@ const navigationItems: NavigationItem[] = [
     path: '/performance-analytics',
     icon: 'PresentationChartLineIcon',
     tooltip: 'การวิเคราะห์เชิงกลยุทธ์และการติดตาม KPI'
+  },
+  {
+    label: 'จัดการยานพาหนะ',
+    path: '/fleet-management-dashboard',
+    icon: 'TruckIcon',
+    tooltip: 'จัดการและติดตามยานพาหนะทั้งหมด'
+  },
+  {
+    label: 'จัดการการจอง',
+    path: '/car-reservations-management',
+    icon: 'CalendarIcon',
+    tooltip: 'จัดการการจองและคำสั่งซื้อ'
+  },
+  {
+    label: 'Team Hub',
+    path: '/team-collaboration-hub',
+    icon: 'UserGroupIcon',
+    tooltip: 'ทำงานร่วมกันกับทีม'
+  },
+  {
+    label: 'AI ผู้ช่วย',
+    path: '/ai-assistant-chat',
+    icon: 'ChatBubbleLeftRightIcon',
+    tooltip: 'แชทกับ AI ผู้ช่วยอัจฉริยะ'
+  },
+  {
+    label: 'แดชบอร์ดผู้ดูแล',
+    path: '/admin-dashboard',
+    icon: 'Cog6ToothIcon',
+    tooltip: 'จัดการระบบและผู้ใช้งาน'
+  },
+  {
+    label: 'เงื่อนไขและนโยบาย',
+    path: '/terms-and-privacy-modal',
+    icon: 'DocumentTextIcon',
+    tooltip: 'เงื่อนไขการใช้งานและนโยบายความเป็นส่วนตัว'
+  },
+  {
+    label: 'เมนูขั้นสูง',
+    path: '/enhanced-navigation-sidebar',
+    icon: 'Bars3Icon',
+    tooltip: 'เมนูนำทางแบบขั้นสูง'
+  },
+  {
+    label: 'โปรไฟล์',
+    path: '/user-profile',
+    icon: 'UserCircleIcon',
+    tooltip: 'จัดการโปรไฟล์ของคุณ'
+  },
+  {
+    label: 'การตั้งค่า',
+    path: '/user-preferences',
+    icon: 'AdjustmentsHorizontalIcon',
+    tooltip: 'ตั้งค่าความชอบของคุณ'
+  },
+  {
+    label: 'บันทึกกิจกรรม',
+    path: '/activity-log',
+    icon: 'ClockIcon',
+    tooltip: 'ดูประวัติกิจกรรมของคุณ'
   }
 ];
 
