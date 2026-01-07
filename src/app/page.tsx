@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -37,16 +37,16 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onSwitchMo
         if (error) {
           setError(error.message);
         } else {
+          // Successfully logged in - just close modal, no redirect
           onClose();
-          router.push('/supply-chain-overview');
         }
       } else {
         const { error } = await signUp(formData.email, formData.password, formData.fullName);
         if (error) {
           setError(error.message);
         } else {
+          // Successfully signed up - just close modal, no redirect
           onClose();
-          router.push('/signup-confirmation');
         }
       }
     } catch (err) {
@@ -172,12 +172,6 @@ export default function HomePage() {
   });
   const { isAuthenticated, loading } = useAuth();
   const router = useRouter();
-
-  useEffect(() => {
-    if (isAuthenticated && !loading) {
-      router.push('/supply-chain-overview');
-    }
-  }, [isAuthenticated, loading, router]);
 
   if (loading) {
     return (
