@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import {
   TruckIcon,
   MapPinIcon,
@@ -75,12 +76,15 @@ export default function CarRentalPage() {
       <header className="bg-white shadow-sm sticky top-0 z-40">
         <div className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
-            <div className="flex items-center space-x-2 cursor-pointer" onClick={() => router.push('/landing-page')}>
+            <Link href="/landing-page" className="flex items-center space-x-2 cursor-pointer">
               <TruckIcon className="w-8 h-8 text-orange-600" />
               <span className="text-2xl font-bold text-gray-900">เช่ารถไทยแลนด์</span>
-            </div>
+            </Link>
             <div className="flex items-center space-x-4">
-              <button className="text-gray-700 hover:text-orange-600 font-medium">
+              <button 
+                onClick={() => router.push('/user-profile')}
+                className="text-gray-700 hover:text-orange-600 font-medium"
+              >
                 <UserIcon className="w-6 h-6" />
               </button>
             </div>

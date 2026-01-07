@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { vehicleService, Vehicle } from '@/services/vehicleService';
 import { maintenanceService, MaintenanceSchedule } from '@/services/maintenanceService';
 import { reservationService, Reservation } from '@/services/reservationService';
@@ -21,6 +22,7 @@ interface FleetMetrics {
 type TabType = 'inventory' | 'maintenance' | 'pricing' | 'analytics';
 
 export default function FleetManagementDashboard() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabType>('inventory');
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [maintenanceSchedules, setMaintenanceSchedules] = useState<MaintenanceSchedule[]>([]);

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { TruckIcon, ChartBarIcon, MapIcon, ShieldCheckIcon, ClockIcon, UsersIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
 interface AuthModalProps {
@@ -242,7 +243,7 @@ export default function HomePage() {
       <header className="fixed top-0 w-full bg-white/95 backdrop-blur-md shadow-sm z-40 border-b border-gray-100">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-3">
+            <Link href="/" className="flex items-center space-x-3 cursor-pointer">
               <div className="bg-gradient-to-br from-orange-500 to-orange-600 p-2 rounded-lg">
                 <TruckIcon className="w-7 h-7 text-white" />
               </div>
@@ -250,7 +251,7 @@ export default function HomePage() {
                 <h1 className="text-xl font-bold text-gray-900">GtsAlpha MCP</h1>
                 <p className="text-xs text-gray-600">Supply Chain Management</p>
               </div>
-            </div>
+            </Link>
             <div className="flex items-center space-x-3">
               <button
                 onClick={handleLogin}

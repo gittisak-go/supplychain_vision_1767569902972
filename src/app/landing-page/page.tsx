@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { TruckIcon, MapPinIcon, CreditCardIcon, XMarkIcon, ClockIcon, ShieldCheckIcon, PhoneIcon } from '@heroicons/react/24/outline';
 
 interface AuthModalProps {
@@ -219,10 +220,10 @@ export default function LandingPage() {
       {/* Header */}
       <header className="fixed top-0 w-full bg-white/95 backdrop-blur-sm shadow-sm z-40">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center space-x-2">
+          <Link href="/landing-page" className="flex items-center space-x-2 cursor-pointer">
             <TruckIcon className="w-8 h-8 text-orange-600" />
             <span className="text-2xl font-bold text-gray-900">เช่ารถไทยแลนด์</span>
-          </div>
+          </Link>
           <div className="flex items-center space-x-4">
             {isAuthenticated ? (
               <button

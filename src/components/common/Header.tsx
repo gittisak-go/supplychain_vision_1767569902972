@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Icon from '@/components/ui/AppIcon';
 import MobileNavToggle from './MobileNavToggle';
 import AuthModal from './AuthModal';
@@ -19,6 +20,7 @@ interface Notification {
 }
 
 const Header = ({ className = '' }: HeaderProps) => {
+  const router = useRouter();
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<'login' | 'signup'>('login');
@@ -204,7 +206,10 @@ const Header = ({ className = '' }: HeaderProps) => {
 
                   {/* Footer */}
                   <div className="px-4 py-3 border-t border-border">
-                    <button className="w-full text-sm text-primary hover:text-primary/80 font-medium transition-smooth">
+                    <button 
+                      onClick={() => router.push('/activity-log')}
+                      className="w-full text-sm text-primary hover:text-primary/80 font-medium transition-smooth"
+                    >
                       ดูการแจ้งเตือนทั้งหมด
                     </button>
                   </div>
